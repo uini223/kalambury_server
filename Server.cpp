@@ -2,8 +2,8 @@
 // Created by Emil on 12/28/18.
 //
 
+#include <fcntl.h>
 #include "Server.h"
-#include <functional>
 
 void Server::setReuseAddr(int sock) {
     const int one = 1;
@@ -41,6 +41,7 @@ void Server::enterListenMode() {
 
 void Server::start() {
     this->enterListenMode();
+    this->addEvent(createEvent(EPOLLIN, 0));
     int event_count;
     char read_buff[255];
     while(true) {
@@ -48,6 +49,12 @@ void Server::start() {
         for(int i=0; i< event_count; i++) {
             if(events[i].data.fd == this -> server_fd) {
                 this->acceptNewConnection();
+            } else if(events[i].data.fd == 0) {
+                ssize_t bytes_read = read(0, read_buff, 255);
+
+                for(int client_fd: this->clientFds){
+                    this->sendMessage(client_fd, read_buff, (size_t) bytes_read);
+                }
             } else {
                 auto fd = events[i].data.fd;
                 ssize_t bytes_read = read(fd, read_buff, 255);
@@ -61,6 +68,7 @@ void Server::start() {
                     printf("Read '%s'\n", read_buff);
                 }
             }
+            strcpy(read_buff, "");
         }
     }
 }
@@ -96,6 +104,7 @@ void Server::acceptNewConnection() {
     printf("New connection from: %s:%hu (fd: %d)\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port),
             client_fd);
     this->addEvent(this->createEvent(EPOLLIN, client_fd));
+    fcntl(client_fd, F_SETFL, O_NONBLOCK);
 }
 
 epoll_event Server::createEvent(uint32_t eventType, int fd) {
@@ -104,4 +113,10 @@ epoll_event Server::createEvent(uint32_t eventType, int fd) {
     event.data.fd = fd;
     printf("New event control created for fd=%d \n", fd);
     return event;
+}
+
+void Server::sendMessage(int fd, char *data, size_t size) {
+    auto res = write(fd, data, size);
+    printf("Sent %zi bytes to fd=%d\n", res, fd);
+
 }

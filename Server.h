@@ -35,8 +35,9 @@ private:
     void createServerSocket();
     void bindServerSocket();
     void enterListenMode();
-    epoll_event createEvent(uint32_t eventType, int fd);
     void acceptNewConnection();
+    void sendMessage(int fd, char data[],size_t size);
+    epoll_event createEvent(uint32_t eventType, int fd);
     void initEpoll();
     void addEvent(epoll_event event);
     void setReuseAddr(int sock);
