@@ -17,7 +17,6 @@ void Server::bindServerSocket() {
     int res = bind(this->server_fd,(sockaddr*) &serverAddr, sizeof(serverAddr));
     if(res) error(1, errno, "bind failed");
     printf("Binded address to server \n");
-
 }
 
 void Server::createServerSocket() {
