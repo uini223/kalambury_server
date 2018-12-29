@@ -1,11 +1,7 @@
-#define MAX_EVENTS 5
-
 #include <iostream>
 #include <stdio.h>
 #include <signal.h>
 #include "Server.h"
-
-#define PORT 2000
 
 Server *server;
 
@@ -13,12 +9,13 @@ void ctrl_c(int);
 
 int main() {
 
+    //catch ctrl+c signal and quit save
     signal(SIGINT, ctrl_c);
 
-    server = new Server(2000, "127.0.0.1");
+    //new server instance (port, ipv4 address)
+    server = new Server(20000, "127.0.0.1");
+    //start running server
     server->start();
-    while(true);
-
 
     return 0;
 }

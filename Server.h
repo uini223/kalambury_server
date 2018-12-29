@@ -22,6 +22,7 @@ class Server {
     uint16_t port;
     std::string addr;
     std::unordered_set<int> clientFds;
+    struct epoll_event events[20];
 
 public:
     Server(uint16_t port, const std::string &addr);
@@ -34,6 +35,10 @@ private:
     void createServerSocket();
     void bindServerSocket();
     void enterListenMode();
+    epoll_event createEvent(uint32_t eventType, int fd);
+    void acceptNewConnection();
+    void initEpoll();
+    void addEvent(epoll_event event);
     void setReuseAddr(int sock);
 };
 
