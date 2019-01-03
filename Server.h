@@ -41,6 +41,7 @@ private:
     void initEpoll();
     void addEvent(epoll_event event);
     void setReuseAddr(int sock);
+    
 };
 
 
