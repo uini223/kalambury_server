@@ -13,7 +13,7 @@ int main() {
     // catch ctrl+c signal and quit save
     signal(SIGINT, ctrl_c);
 
-    testParser();
+    // testParser();
     //    new server instance (port, ipv4 address)
     server = new Server(20000, "127.0.0.1");
     // start running server
