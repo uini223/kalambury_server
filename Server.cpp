@@ -68,7 +68,8 @@ void Server::start() {
                     printf("Read '%s'\n", read_buff);
                 }
             }
-            strcpy(read_buff, "");
+
+            bzero(read_buff, sizeof(read_buff));
         }
     }
 }
