@@ -13,7 +13,6 @@ PackageStucture WebMessageParser::parse(char *data) {
     if (temp.find(START) != -1) {
         temp.erase(0, START_LENGTH);
         packageStucture.message_id = this->getMessageId(temp);
-        packageStucture.package_number = this->getPackageNumber(temp);
         packageStucture.data = "";
     } else {
         packageStucture.message_id = this->getMessageId(temp);
@@ -26,15 +25,9 @@ PackageStucture WebMessageParser::parse(char *data) {
 }
 
 int WebMessageParser::getPackageNumber(std::string &data) {
-    // int closing_bracket = data.find(']') + 1;
     std::string package_number_opening_str = data.substr(0, PACKAGE_NUMBER_LENGTH);
-    // std::string package_number_closing_str = data.substr(closing_bracket, PACKAGE_NUMBER_LENGTH);
     int package_number_opening = std::stoi(package_number_opening_str);
-    //    int package_number_opening =  0 ;
-    //    int package_number_closing = 0 ;
-    // int package_number_closing = std::stoi(package_number_closing_str);
     data.erase(0, PACKAGE_NUMBER_LENGTH);
-    // data.erase(closing_bracket, PACKAGE_NUMBER_LENGTH);
     if (package_number_opening) {
         return package_number_opening;
     } else {
@@ -47,3 +40,4 @@ int WebMessageParser::getMessageId(std::string &data) {
     data.erase(0, ID_LENGTH);
     return std::stoi(message_id);
 }
+
