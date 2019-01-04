@@ -7,10 +7,10 @@
 
 #define START "START"
 #define START_LENGTH 5
-#define ID_LENGTH 4
+#define ID_LENGTH 3
 #define PACKAGE_NUMBER_LENGTH 3
 #define PACKAGE_DATA_SIZE 220
-#define STOP "stop"
+#define STOP "STOP"
 
 #include <string>
 #include "PackageStucture.h"
