@@ -19,7 +19,7 @@ void ConnectionInputHandler::handleNewInput(std::string input, int fd) {
     if (input.find("STOP") != std::string::npos) { // handle whole message
         std::string data = fds_with_messages[fd][msg_id];
         fds_with_messages[fd][msg_id] = parser.parse(data);
-        std::cout<<data<<std::endl; // for test only
+        std::cout<<parser.parse(data)<<std::endl; // for test only
         //TODO return message_id;
     }
     // TODO return -1 // nie ma konca wiadomosci
