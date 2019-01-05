@@ -47,18 +47,6 @@ void ConnectionInputHandler::handleEvent(int fd, int msg_id, std::string message
     auto event_type = std::string(type.GetString());
     auto contents = content.GetString();
 
-//    switch (str2int(event_type)){
-//        case answer:
-//            switch (str2int(event_name)){
-//                case str2int("NEW-USER".c_str()):
-//                    handleNewUser(content.GetString(),fd);
-//
-//            }
-//        case str2int("REQUEST".c_str()):
-//            switch (str2int(event_name)){
-//
-//            }
-//    }
     if(event_type == "ANSWER"){
         if( event_name,"NEW-USER") handleNewUser(contents,fd);
     } else {
