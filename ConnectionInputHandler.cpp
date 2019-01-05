@@ -10,36 +10,17 @@ ConnectionInputHandler::ConnectionInputHandler() = default;
 void ConnectionInputHandler::handleNewInput(std::string input, int fd) {
     WebMessageParser parser;
     int msg_id = 0;
-    int pckg_id = 0;
-    if (input.find("START") != std::string::npos && input.find("STOP") != std::string::npos) {
-        msg_id = parser.getMessageId(input);
-        pckg_id = parser.getPackageNumber(input);
-        input = input.substr(1, input.size() - 1);
-        if (std::find(this->fds.begin(), this->fds.end(), fd) != this->fds.end()) {
-            this->fds.push_back(fd);
-            this->messages.push_back(input);
-            this->msg_ids.push_back(msg_id);
-        } else {
-            if (std::find(this->msg_ids.begin(), this->msg_ids.end(), msg_id) != this->msg_ids.end()) {
-                this->fds.push_back(fd);
-                this->messages.push_back(input);
-                this->msg_ids.push_back(msg_id);
-            } else {
-                for (int i = 0; i < this->fds.size(); i++) {
-                    if (this->fds[i] == fd && this->msg_ids[i] == msg_id) {
-                        this->messages[i] += input;
-                    }
-                }
-            }
-        }
-        //TODO użycie rapidjson i rozpakowanie wiadomości (zamiana w obiekt) + wywołanie odpowiedniej funkcji
-        //znane jest fd autora wiadomości, id wiadomości i jej treść
-        //z zawartości można wyciąŋnąć nazwę i typ
-    } else if (input.find("STOP") == std::string::npos) {
-        for (int i = 0; i < this->fds.size(); i++) {
-            if (this->fds[i] == fd && this->msg_ids[i] == msg_id) {
-                std::cout << this->messages[i];
-            }
-        }
+    msg_id = parser.getMessageId(input);
+    if (this->fds_with_messages[fd].count(msg_id)) {
+        this->fds_with_messages[fd][msg_id] += input;
+    } else {
+        this->fds_with_messages[fd][msg_id] = input;
     }
+    if (input.find("STOP") != std::string::npos) { // handle whole message
+        std::string data = fds_with_messages[fd][msg_id];
+        fds_with_messages[fd][msg_id] = parser.parse(data);
+        std::cout<<data<<std::endl; // for test only
+        //TODO return message_id;
+    }
+    // TODO return -1 // nie ma konca wiadomosci
 }

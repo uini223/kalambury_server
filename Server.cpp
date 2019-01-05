@@ -65,6 +65,7 @@ void Server::start() {
                 } else {
                     printf("%zd bytes read.\n", bytes_read);
                     printf("Read '%s'\n", read_buff);
+                    connectionInputHandler.handleNewInput(read_buff, fd);
                 }
             }
 

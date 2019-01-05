@@ -9,11 +9,10 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include <map>
 
 class ConnectionInputHandler {
-    std::vector<std::string> messages;
-    std::vector<int> fds;
-    std::vector<int> msg_ids;
+    std::map<int, std::map<int, std::string>> fds_with_messages;
 public:
     ConnectionInputHandler();
     void handleNewInput(std::string input, int fd);

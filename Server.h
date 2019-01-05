@@ -22,6 +22,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include "ConnectionInputHandler.h"
 
 class Server {
     int server_fd, epoll_fd;
@@ -30,6 +31,7 @@ class Server {
     std::unordered_set<int> clientFds;
     struct epoll_event events[20];
     std::vector<User> users;
+    ConnectionInputHandler connectionInputHandler;
 
 public:
     Server(uint16_t port, const std::string &addr);

@@ -9,8 +9,8 @@
 #include <string>
 
 struct PackageStucture {
+    // TODO maybe it needs changes
     int message_id;
-    int package_number;
     std::string data;
 };
 
