@@ -21,10 +21,9 @@ class WebMessageParser {
       public:
        PackageStucture parse(char *data);
        std::vector<std::string> packString(std::string, int);
-
+        int getPackageNumber(std::string &data);
+        int getMessageId(std::string &data);
       private:
-       int getPackageNumber(std::string &data);
-       int getMessageId(std::string &data);
        std::string toString(int);
 };
 
