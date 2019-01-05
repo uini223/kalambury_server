@@ -13,7 +13,6 @@ class User {
     std::string name;
 public:
     User(int id, const std::string &name);
-
     virtual ~User();
 
 };

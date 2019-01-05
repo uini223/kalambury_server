@@ -65,10 +65,12 @@ void Server::start() {
                 } else {
                     printf("%zd bytes read.\n", bytes_read);
                     printf("Read '%s'\n", read_buff);
-                    connectionInputHandler.handleNewInput(read_buff, fd);
+                    int pom = connectionInputHandler.handleNewInput(read_buff, fd);
+                    if(pom>=0){
+                        connectionInputHandler.handleEvent(fd,pom,connectionInputHandler.getMsgByMsgID(pom,fd));
+                    }
                 }
             }
-
             bzero(read_buff, sizeof(read_buff));
         }
     }

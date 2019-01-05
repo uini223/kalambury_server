@@ -19,9 +19,6 @@
 #include <vector>
 #include "User.h"
 #include "WebMessageParser.h"
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
 #include "ConnectionInputHandler.h"
 
 class Server {
