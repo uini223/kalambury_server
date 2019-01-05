@@ -79,14 +79,16 @@ int WebMessageParser::getPackageNumber(std::string &data) {
 }
 
 int WebMessageParser::getMessageId(std::string &data) {
-    std::string message_id = "";
-    if (data.find(START) != -1) {
-        message_id = data.substr(START_LENGTH, ID_LENGTH);
-        data.erase(ID_LENGTH, START_LENGTH);
+    std::string message_id;
+    auto findStart = data.find(START);
+    auto findStop = data.find(STOP);
+    if (findStart != -1) {
+        message_id = data.substr(findStart + START_LENGTH, ID_LENGTH);
+        data.erase(findStart + START_LENGTH, ID_LENGTH);
 
-    } else if (data.find(STOP) != -1) {
-        message_id = data.substr(STOP_LENGTH, ID_LENGTH);
-        data.erase(ID_LENGTH, STOP_LENGTH);
+    } else if (findStop != -1) {
+        message_id = data.substr(findStop + STOP_LENGTH, ID_LENGTH);
+        data.erase(findStop + STOP_LENGTH, ID_LENGTH);
 
     } else {
         message_id = data.substr(0, ID_LENGTH);
