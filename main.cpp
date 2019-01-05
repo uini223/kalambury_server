@@ -26,33 +26,3 @@ void ctrl_c(int) {
     delete server;
     exit(0);
 }
-
-void testParser() {
-    WebMessageParser parser;
-    std::string msg = "";
-
-    char start[255] = "START001";
-    char data[255] = "001001[to jest wiadomość testowa dla parsera]";
-    char s[255] = "001002[druga wiadomosc testowa]";
-
-    PackageStucture structure = parser.parse(start);
-    msg += structure.data;
-    printf("Message_id = %d\npackage_id = %d\ndata = %s\n", structure.message_id,
-           structure.package_number, structure.data.c_str());
-
-    structure = parser.parse(data);
-    msg += structure.data;
-    printf("Message_id = %d\npackage_id = %d\ndata = %s\n", structure.message_id,
-           structure.package_number, structure.data.c_str());
-
-    structure = parser.parse(s);
-    msg += structure.data;
-    printf("Message_id = %d\npackage_id = %d\ndata = %s\n", structure.message_id,
-           structure.package_number, structure.data.c_str());
-
-    std::vector<std::string> temp = parser.packString(msg, structure.message_id);
-
-    for (auto var : temp) {
-        std::cout << var << std::endl;
-    }
-}

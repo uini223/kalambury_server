@@ -7,23 +7,24 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
-PackageStucture WebMessageParser::parse(char *data) {
-    std::string temp(data);
+// TODO this might return packageStructure to discuse
+std::string WebMessageParser::parse(std::string data) {
     PackageStucture packageStucture;
-    if (temp.find(START) != -1 || temp.find(STOP) != -1) {
-        packageStucture.message_id = this->getMessageId(temp);
-        packageStucture.package_number = NULL;
-        packageStucture.data = "";
-    } else {
-        packageStucture.message_id = this->getMessageId(temp);
-        packageStucture.package_number = this->getPackageNumber(temp);
-        int package_data_start = temp.find('[');
-        int package_data_end = temp.find(']');
-        packageStucture.data = temp.substr(package_data_start + 1, package_data_end - 1);
+    std::string content = "";
+    this->eraseStart(data);
+    this->eraseStop(data);
+    auto openBracket = data.find('[');
+    auto closeBracket = data.find(']');
+    while (openBracket != -std::string::npos && closeBracket != std::string::npos) {
+        content += data.substr(openBracket+1, closeBracket-openBracket-1);
+        data.erase(openBracket, closeBracket-openBracket+1);
+        openBracket = data.find('[');
+        closeBracket = data.find(']');
     }
-    return packageStucture;
+    return content;
 }
 
+//  TODO change that method to pack correctly
 std::vector<std::string> WebMessageParser::packString(std::string data, int msg_id) {
     std::vector<PackageStucture> pckg_list;
     std::vector<std::string> out_list;
@@ -34,59 +35,46 @@ std::vector<std::string> WebMessageParser::packString(std::string data, int msg_
     for (int i = 0; i < data.length(); i += PACKAGE_DATA_SIZE) {
         if (i == 0) {
             pom.data = "START";
-            pom.package_number = package_counter;
             package_counter++;
             pckg_list.push_back(pom);
         }
 
         if (i * PACKAGE_DATA_SIZE + PACKAGE_DATA_SIZE > data.length()) {
             pom.data = data.substr(i * PACKAGE_DATA_SIZE, data.length());
-            pom.package_number = package_counter;
             pckg_list.push_back(pom);
             package_counter++;
 
             pom.data = "STOP";
-            pom.package_number = package_counter;
             pckg_list.push_back(pom);
             break;
         } else {
             pom.data = data.substr(i, PACKAGE_DATA_SIZE);
-            pom.package_number = package_counter;
             package_counter++;
             pckg_list.push_back(pom);
         }
     }
     for (auto var : pckg_list) {
         if (var.data.find("START") != std::string::npos || var.data.find("STOP") != std::string::npos) {
-            out_list.push_back(var.data + toString(var.message_id) + toString(var.package_number));
+            out_list.push_back(var.data + toString(var.message_id));
         } else {
-            out_list.push_back(toString(var.message_id) + toString(var.package_number) + "[" + var.data + "]");
+            out_list.push_back(toString(var.message_id) + "[" + var.data + "]");
         }
     }
 
     return out_list;
 }
 
-int WebMessageParser::getPackageNumber(std::string &data) {
-    std::string package_number_opening_str = data.substr(0, PACKAGE_NUMBER_LENGTH);
-    int package_number_opening = std::stoi(package_number_opening_str);
-    data.erase(0, PACKAGE_NUMBER_LENGTH);
-    if (package_number_opening) {
-        return package_number_opening;
-    } else {
-        return -1;
-    }
-}
-
 int WebMessageParser::getMessageId(std::string &data) {
-    std::string message_id = "";
-    if (data.find(START) != -1) {
-        message_id = data.substr(START_LENGTH, ID_LENGTH);
-        data.erase(ID_LENGTH, START_LENGTH);
+    std::string message_id;
+    auto findStart = data.find(START);
+    auto findStop = data.find(STOP);
+    if (findStart != -1) {
+        message_id = data.substr(findStart + START_LENGTH, ID_LENGTH);
+        data.erase(findStart + START_LENGTH, ID_LENGTH);
 
-    } else if (data.find(STOP) != -1) {
-        message_id = data.substr(STOP_LENGTH, ID_LENGTH);
-        data.erase(ID_LENGTH, STOP_LENGTH);
+    } else if (findStop != -1) {
+        message_id = data.substr(findStop + STOP_LENGTH, ID_LENGTH);
+        data.erase(findStop + STOP_LENGTH, ID_LENGTH);
 
     } else {
         message_id = data.substr(0, ID_LENGTH);
@@ -104,4 +92,12 @@ std::string WebMessageParser::toString(int number) {
         case 3:
             return std::to_string(number);
     }
+}
+
+void WebMessageParser::eraseStart(std::string &data) {
+    data.erase(data.find(START), START_LENGTH);
+}
+
+void WebMessageParser::eraseStop(std::string &data) {
+    data.erase(data.find(STOP), STOP_LENGTH);
 }

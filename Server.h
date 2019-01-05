@@ -16,6 +16,10 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <unordered_set>
+#include <vector>
+#include "User.h"
+#include "WebMessageParser.h"
+#include "ConnectionInputHandler.h"
 
 class Server {
     int server_fd, epoll_fd;
@@ -23,6 +27,8 @@ class Server {
     std::string addr;
     std::unordered_set<int> clientFds;
     struct epoll_event events[20];
+    std::vector<User> users;
+    ConnectionInputHandler connectionInputHandler;
 
 public:
     Server(uint16_t port, const std::string &addr);
@@ -41,7 +47,7 @@ private:
     void initEpoll();
     void addEvent(epoll_event event);
     void setReuseAddr(int sock);
-    
+
 };
 
 
