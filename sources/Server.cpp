@@ -67,7 +67,7 @@ void Server::start() {
                     printf("Read '%s'\n", read_buff);
                     int pom = connectionInputHandler.handleNewInput(read_buff, fd);
                     if(pom>=0){
-                        connectionInputHandler.handleEvent(fd,pom,connectionInputHandler.getMsgByMsgID(pom,fd));
+                        connectionInputHandler.handleEvent(fd,pom, this);
                     }
                 }
             }
@@ -121,4 +121,15 @@ epoll_event Server::createEvent(uint32_t eventType, int fd) {
 void Server::sendMessage(int fd, char *data, size_t size) {
     auto res = write(fd, data, size);
     printf("Sent %zi bytes to fd=%d\n", res, fd);
+}
+
+void Server::sendMessageToAll(std::vector<std::string> messages) {
+    for (auto fd: this->clientFds) {
+        for(auto msg: messages) {
+            char* pom = new char[msg.length()+1];
+            strcpy(pom, msg.c_str());
+            sendMessage(fd, pom, msg.length());
+            delete []pom;
+        }
+    }
 }

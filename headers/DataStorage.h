@@ -7,14 +7,17 @@
 
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include "User.h"
+#include "RoomData.h"
 
 class DataStorage {
     std::vector<User> users;
+    std::unordered_map<std::string, RoomData> rooms;
 public:
     DataStorage();
     void addUser(User);
-
+    void addRoom(RoomData roomData);
 };
 
 
