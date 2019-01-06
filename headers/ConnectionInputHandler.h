@@ -11,9 +11,9 @@
 #include <iostream>
 #include <map>
 #include "DataStorage.h"
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
+#include "../libs/rapidjson/document.h"
+#include "../libs/rapidjson/writer.h"
+#include "../libs/rapidjson/stringbuffer.h"
 
 typedef std::map<int, std::string> MSGS_WITH_IDS;
 typedef std::map<int, std::map<int, std::string>> MSGS_WITH_FDS;

@@ -2,8 +2,8 @@
 // Created by ramon on 05.01.19.
 //
 
-#include "ConnectionInputHandler.h"
-#include "WebMessageParser.h"
+#include "../headers/ConnectionInputHandler.h"
+#include "../headers/WebMessageParser.h"
 
 ConnectionInputHandler::ConnectionInputHandler() = default;
 

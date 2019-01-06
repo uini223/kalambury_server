@@ -1,8 +1,8 @@
 #include <signal.h>
 #include <stdio.h>
 #include <iostream>
-#include "Server.h"
-#include "WebMessageParser.h"
+#include "headers/Server.h"
+#include "headers/WebMessageParser.h"
 
 Server *server;
 

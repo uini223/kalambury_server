@@ -2,7 +2,7 @@
 // Created by Emil on 12/28/18.
 //
 
-#include "Server.h"
+#include "../headers/Server.h"
 #include <fcntl.h>
 
 void Server::setReuseAddr(int sock) {

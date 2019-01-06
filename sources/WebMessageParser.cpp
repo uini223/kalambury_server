@@ -1,11 +1,11 @@
 //
 // Created by Emil on 12/30/18.
 //
-#include "WebMessageParser.h"
+#include "../headers/WebMessageParser.h"
 #include <iostream>
-#include "rapidjson/document.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/writer.h"
+#include "../libs/rapidjson/document.h"
+#include "../libs/rapidjson/stringbuffer.h"
+#include "../libs/rapidjson/writer.h"
 
 // TODO this might return packageStructure to discuse
 std::string WebMessageParser::parse(std::string data) {
