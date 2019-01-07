@@ -8,39 +8,30 @@
 ConnectionInputHandler::ConnectionInputHandler() = default;
 
 int ConnectionInputHandler::handleNewInput(std::string input, int fd) {
-    int msg_id = 0;
-    msg_id = this->parser.getMessageId(input);
-    if (this->fds_with_messages[fd].count(msg_id)) {
-        this->fds_with_messages[fd][msg_id] += input;
+    if (this->fds_with_messages.count(fd)) {
+        this->fds_with_messages[fd] += input;
     } else {
-        this->fds_with_messages[fd][msg_id] = input;
+        this->fds_with_messages[fd] = input;
     }
-    if (input.find("STOP") != std::string::npos) { // handle whole message
-        std::string data = fds_with_messages[fd][msg_id];
-        fds_with_messages[fd][msg_id] = this->parser.parse(data);
-//        std::cout<<parser.parse(data)<<std::endl; // for test only
-        return msg_id;
+    if (this->fds_with_messages[fd].find("STOP") != std::string::npos) { // handle whole message
+        std::string data = this->fds_with_messages[fd];
+        int stopIdx = data.find("STOP");
+        data = data.substr(0, stopIdx);
+        this->fds_with_messages[fd].erase(stopIdx, 4);
+        this->ready_for_read[fd] = this->parser.parse(data);
+        this->fds_with_messages.erase(fd);
+        return fd;
     }
     return -1;
 }
 
-std::string ConnectionInputHandler::getMsgByMsgID(int msg_id, int fd){
-//    MSGS_WITH_FDS::iterator it = this->fds_with_messages.find(fd);
-//    if(it != this->fds_with_messages.end()){
-//        MSGS_WITH_IDS &innerMap = it->second;
-//        MSGS_WITH_IDS::iterator innerIt = innerMap.find(msg_id);
-//        if(innerIt != innerMap.end()){
-//            return innerIt->second;
-//        }
-//    }
-    std::string message = this->fds_with_messages[fd][msg_id];
-    this->fds_with_messages[fd][msg_id].erase();
-    return message;
+std::string ConnectionInputHandler::getMsgByFd(int fd){
+    return this->ready_for_read[fd];
 }
 
-void ConnectionInputHandler::handleEvent(int fd, int msg_id, Server* server) {
+void ConnectionInputHandler::handleEvent(int fd, Server* server) {
     rapidjson::Document d;
-    std::string message = getMsgByMsgID(msg_id, fd);
+    std::string message = getMsgByFd(fd);
     d.Parse(message.c_str());
     rapidjson::Value& name = d["name"];
     rapidjson::Value& type = d["type"];
@@ -70,6 +61,5 @@ void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd, Serve
     std::string name = data["name"].GetString();
     RoomData roomData(name, fd);
     this->dataStorage.addRoom(roomData);
-    auto message = this->parser.createMessage("ANSWER", "NEW-ROOM", data);
-    server -> sendMessageToAll(parser.packString(message));
+    server -> sendMessageToAll(this->parser.createMessage("ANSWER", "NEW-ROOM", roomData));
 }

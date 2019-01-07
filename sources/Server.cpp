@@ -65,9 +65,8 @@ void Server::start() {
                 } else {
                     printf("%zd bytes read.\n", bytes_read);
                     printf("Read '%s'\n", read_buff);
-                    int pom = connectionInputHandler.handleNewInput(read_buff, fd);
-                    if(pom>=0){
-                        connectionInputHandler.handleEvent(fd,pom, this);
+                    if(connectionInputHandler.handleNewInput(read_buff, fd) >= 0 ) {
+                        connectionInputHandler.handleEvent(fd, this);
                     }
                 }
             }
@@ -123,13 +122,11 @@ void Server::sendMessage(int fd, char *data, size_t size) {
     printf("Sent %zi bytes to fd=%d\n", res, fd);
 }
 
-void Server::sendMessageToAll(std::vector<std::string> messages) {
+void Server::sendMessageToAll(std::string message) {
     for (auto fd: this->clientFds) {
-        for(auto msg: messages) {
-            char* pom = new char[msg.length()+1];
-            strcpy(pom, msg.c_str());
-            sendMessage(fd, pom, msg.length());
+            char* pom = new char[message.length()+1];
+            strcpy(pom, message.c_str());
+            sendMessage(fd, pom, message.length());
             delete []pom;
-        }
     }
 }

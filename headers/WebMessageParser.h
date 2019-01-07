@@ -17,6 +17,7 @@
 #include <random>
 #include "PackageStucture.h"
 #include "../libs/rapidjson/pointer.h"
+#include "AbstractData.h"
 
 class WebMessageParser {
     std::default_random_engine engine;
@@ -26,11 +27,9 @@ public:
 
     std::string parse(std::string data);
 
-    std::vector<std::string> packString(std::string);
-
     int getMessageId(std::string &data);
 
-    std::string createMessage(std::string eventType, std::string eventName, rapidjson::Value &data);
+    std::string createMessage(std::string eventType, std::string eventName, AbstractData &data);
 
 private:
     std::string toString(int);

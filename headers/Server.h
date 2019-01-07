@@ -36,7 +36,7 @@ public:
 
     void start();
     void sendMessage(int fd, char data[],size_t size);
-    void sendMessageToAll(std::vector<std::string>);
+    void sendMessageToAll(std::string);
 
 private:
     void createServerSocket();

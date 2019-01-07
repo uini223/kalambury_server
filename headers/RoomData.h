@@ -9,15 +9,16 @@
 
 #include <string>
 #include <unordered_set>
+#include "AbstractData.h"
 
-class RoomData {
+class RoomData: public AbstractData {
     std::string name;
     int ownerId;
     std::unordered_set<int> guests;
 public:
     RoomData() {}
     RoomData(std::string name, int ownerId) : name(std::move(name)), ownerId(ownerId) {};
-
+    std::string toString();
     std::string getName() {
         return name;
     }
