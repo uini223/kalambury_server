@@ -13,3 +13,7 @@ void DataStorage::addUser(User user) {
 void DataStorage::addRoom(RoomData data) {
     this->rooms[data.getName()] = data;
 }
+
+std::unordered_map<std::string, RoomData> &DataStorage::getRooms() {
+    return this->rooms;
+}

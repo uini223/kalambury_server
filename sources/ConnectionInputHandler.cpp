@@ -4,6 +4,7 @@
 
 #include "../headers/ConnectionInputHandler.h"
 #include "../headers/WebMessageParser.h"
+#include "../ChatMessage.h"
 
 ConnectionInputHandler::ConnectionInputHandler() = default;
 
@@ -41,10 +42,18 @@ void ConnectionInputHandler::handleEvent(int fd, Server* server) {
     auto event_type = std::string(type.GetString());
 
     if(event_type == "ANSWER"){
-
-    } else if(event_type == "REQUEST") {
-        if( event_name == "NEW-USER") this->handleNewUser(content,fd);
-        else if( event_name == "NEW-ROOM") this->handleNewRoom(content, fd, server);
+    } else if(intValue(event_type) == intValue("REQUEST")) {
+        if (intValue(event_name) == intValue("NEW-USER")) {
+            this->handleNewUser(content,fd);
+        }
+        if (intValue(event_name) == intValue("NEW-ROOM")) {
+            this->handleNewRoom(content, fd, server);
+        }
+        if (intValue(event_name) == intValue("GET-ROOM-LIST")) {
+            this->sendCurrentRoomsData(fd, server);
+        }
+    } else if(event_type == "INFO") {
+        if( event_name == "CHAT-MSG") this->handleChatMessage(content, fd, server);
     }
 }
 
@@ -61,5 +70,23 @@ void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd, Serve
     std::string name = data["name"].GetString();
     RoomData roomData(name, fd);
     this->dataStorage.addRoom(roomData);
-    server -> sendMessageToAll(this->parser.createMessage("ANSWER", "NEW-ROOM", roomData));
+    server->sendMessageToAllExceptOne(this->parser.createMessage("ANSWER", "NEW-ROOM", roomData), fd);
+}
+
+void ConnectionInputHandler::handleChatMessage(rapidjson::Value &data, int fd, Server *server) {
+    std::string text = data["text"].GetString();
+    ChatMessage message(text);
+    // TODO check if is correct answer
+    server->sendMessageToAllExceptOne(this->parser.createMessage("INFO", "CHAT-MSG", message), fd);
+}
+
+void ConnectionInputHandler::sendCurrentRoomsData(int fd, Server *server) {
+    for (const auto &entry: this->dataStorage.getRooms()) {
+        RoomData roomData = entry.second;
+        server->sendMessage(fd, this->parser.createMessage("ANSWER", "GET-ROOM-LIST", roomData));
+    }
+}
+
+size_t ConnectionInputHandler::intValue(const std::string &value) {
+    return std::hash<std::string>{}(value);
 }

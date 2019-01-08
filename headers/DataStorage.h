@@ -18,6 +18,7 @@ public:
     DataStorage();
     void addUser(User);
     void addRoom(RoomData roomData);
+    std::unordered_map<std::string, RoomData>& getRooms();
 };
 
 

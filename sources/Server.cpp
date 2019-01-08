@@ -122,11 +122,27 @@ void Server::sendMessage(int fd, char *data, size_t size) {
     printf("Sent %zi bytes to fd=%d\n", res, fd);
 }
 
-void Server::sendMessageToAll(std::string message) {
-    for (auto fd: this->clientFds) {
-            char* pom = new char[message.length()+1];
-            strcpy(pom, message.c_str());
-            sendMessage(fd, pom, message.length());
-            delete []pom;
+void Server::sendMessage(int fd, std::string data) {
+    for (int i = 0; i < data.length(); i+=255) {
+        char *buff = new char[255];
+        int size;
+        if(data.length() > 255*i) {
+            size = 255;
+        } else {
+            size = data.length();
+        }
+        strcpy(buff,data.substr(i*255, size).c_str());
+        sendMessage(fd, buff, (size_t) size);
+    }
+}
+
+void Server::sendMessageToAllExceptOne(std::string message, int fd) {
+    for (auto clientFd: this->clientFds) {
+            if(clientFd != fd) {
+                char* pom = new char[message.length()+1];
+                strcpy(pom, message.c_str());
+                sendMessage(clientFd, pom, message.length());
+                delete []pom;
+            }
     }
 }

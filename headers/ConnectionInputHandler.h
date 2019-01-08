@@ -34,6 +34,12 @@ public:
     void handleNewUser(rapidjson::Value &, int);
 
     void handleNewRoom(rapidjson::Value &data, int fd, Server *server);
+
+    void handleChatMessage(rapidjson::Value &value, int fd, Server *server);
+
+    void sendCurrentRoomsData(int fd, Server *server);
+
+    size_t intValue(const std::string &value);
 };
 
 #include "Server.h"
