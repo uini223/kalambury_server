@@ -30,7 +30,7 @@ Server::Server(uint16_t port, const std::string &addr) : port(port), addr(addr) 
     this->initEpoll();
     this->createServerSocket();
     this->bindServerSocket();
-    this->connectionInputHandler = ConnectionInputHandler(this);
+    this->connectionInputHandler.setServer(this);
 }
 
 void Server::enterListenMode() {
@@ -43,7 +43,7 @@ void Server::enterListenMode() {
 void Server::start() {
     this->enterListenMode();
     this->addEvent(createEvent(EPOLLIN, 0));
-    int event_count;
+    int event_count = 0;
     char read_buff[255];
     while (true) {
         event_count = epoll_wait(this->epoll_fd, this->events, sizeof(this->events), -1);
@@ -88,7 +88,6 @@ Server::~Server() {
     close(this->epoll_fd);
     for (int client_fd : clientFds)
         close(client_fd);
-
     printf("Closing server\n");
 }
 
@@ -118,7 +117,7 @@ void Server::acceptNewConnection() {
 }
 
 epoll_event Server::createEvent(uint32_t eventType, int fd) {
-    struct epoll_event event;
+    struct epoll_event event{};
     event.events = eventType;
     event.data.fd = fd;
     printf("New event control created for fd=%d \n", fd);
@@ -131,17 +130,10 @@ void Server::sendMessage(int fd, char *data, size_t size) {
 }
 
 void Server::sendMessage(int fd, std::string data) {
-    for (int i = 0; i < data.length(); i+=255) {
-        char *buff = new char[255];
-        int size;
-        if(data.length() > 255*i) {
-            size = 255;
-        } else {
-            size = data.length();
-        }
-        strcpy(buff,data.substr(i*255, size).c_str());
-        sendMessage(fd, buff, (size_t) size);
-    }
+    char *buff = new char[data.length()+1];
+    size_t size = data.length();
+    strcpy(buff,data.c_str());
+    sendMessage(fd, buff, size);
 }
 
 void Server::sendMessageToAllExceptOne(std::string message, int fd) {

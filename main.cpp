@@ -7,11 +7,14 @@
 Server *server;
 
 void ctrl_c(int);
-void testParser();
 
 int main() {
     // catch ctrl+c signal and quit save
     signal(SIGINT, ctrl_c);
+    signal(SIGABRT, ctrl_c);
+    signal(SIGTERM, ctrl_c);
+    signal(SIGQUIT, ctrl_c);
+
 
     // testParser();
     //    new server instance (port, ipv4 address)

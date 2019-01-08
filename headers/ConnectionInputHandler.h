@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <fstream>
 #include "DataStorage.h"
 #include "../libs/rapidjson/document.h"
 #include "../libs/rapidjson/writer.h"
@@ -26,26 +27,33 @@ class ConnectionInputHandler {
     Server *server;
 
 public:
-    ConnectionInputHandler();
+    ~ConnectionInputHandler();
 
-    explicit ConnectionInputHandler(Server *server);
+    ConnectionInputHandler();
 
     void handleNewInput(int fd, std::string);
 
     void handleEvent(int fd, std::string);
 
     constexpr unsigned int str2int(const char* str, int h);
+
     void handleNewUser(rapidjson::Value &, int);
 
     void handleNewRoom(rapidjson::Value &data, int fd);
 
     void handleChatMessage(rapidjson::Value &value, int fd);
 
+    void handleCanvasSync(rapidjson::Document &, int fd);
+
     void sendCurrentRoomsData(int fd);
 
     size_t intValue(const std::string &value);
+
+    void setServer(Server *server);
 };
 
 #include "Server.h"
-
+#define NEW_ROOM "NEW_ROOM"
+#define CHAT_MSG "CHAT_MSG"
+#define GET_ROOM_LIST "GET_ROOM_LIST"
 #endif //KALAMBURY_SERVER_CONNECTIONINPUTHANDLER_H

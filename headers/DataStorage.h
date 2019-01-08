@@ -19,6 +19,8 @@ public:
     void addUser(User);
     void addRoom(RoomData roomData);
     std::unordered_map<std::string, RoomData>& getRooms();
+    std::string toString();
+    bool doesRoomAlreadyExists(std::string roomName);
 };
 
 

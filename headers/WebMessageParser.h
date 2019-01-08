@@ -5,12 +5,13 @@
 #ifndef KALAMBURY_SERVER_WEBMESSAGEPARSER_H
 #define KALAMBURY_SERVER_WEBMESSAGEPARSER_H
 
-#define START "START"
 #define START_LENGTH 5
-#define ID_LENGTH 3
-#define PACKAGE_DATA_SIZE 250
-#define STOP "STOP"
 #define STOP_LENGTH 4
+#define START "START"
+#define STOP "STOP"
+#define INFO "INFO"
+#define ERROR "ERROR"
+#define ANSWER "ANSWER"
 
 #include <string>
 #include <vector>
@@ -27,18 +28,24 @@ public:
 
     std::string parse(std::string data);
 
-    int getMessageId(std::string &data);
+    std::string createMessage(std::string eventType, std::string eventName, std::string content);
 
-    std::string createMessage(std::string eventType, std::string eventName, AbstractData &data);
+    std::string createErrorMessage(std::string errorMessage);
+
+    std::string createInfoMessage(std::string name, AbstractData &content);
+
+    std::string createAnswerMessage(std::string name, AbstractData &content);
+
+    std::string createAnswerMessage(std::string name, std::string &);
 
 private:
-    std::string toString(int);
+    std::string createMessageHeader(std::string eventType, std::string eventName);
+
+    std::string createMessageContent(std::string content);
 
     void eraseStart(std::string &data);
 
     void eraseStop(std::string &data);
-
-    int getRandomId();
 };
 
 #endif  //KALAMBURY_SERVER_WEBMESSAGEPARSER_H

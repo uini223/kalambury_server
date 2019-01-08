@@ -11,6 +11,7 @@ std::string RoomData::toString() {
         if (i != 0) {
            guests += ",";
         }
+        guests+= std::to_string(guest);
         i++;
     }
     guests += ']';

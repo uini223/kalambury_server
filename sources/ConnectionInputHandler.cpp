@@ -6,8 +6,6 @@
 #include "../headers/WebMessageParser.h"
 #include "../ChatMessage.h"
 
-ConnectionInputHandler::ConnectionInputHandler() = default;
-
 void ConnectionInputHandler::handleNewInput(int fd, std::string input) {
     if (this->fds_with_messages.count(fd)) {
         this->fds_with_messages[fd] += input;
@@ -44,6 +42,9 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
         if (intValue(event_name) == intValue("GET-ROOM-LIST")) {
             this->sendCurrentRoomsData(fd);
         }
+        if (intValue(event_name) == intValue("SYN_CANVAS")) {
+            this->handleCanvasSync(d, fd);
+        }
     } else if(event_type == "INFO") {
         if( event_name == "CHAT-MSG") this->handleChatMessage(content, fd);
     }
@@ -59,28 +60,57 @@ void ConnectionInputHandler::handleNewUser(rapidjson::Value &name, int id) {
 }
 
 void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd) {
-    std::string name = data["name"].GetString();
-    RoomData roomData(name, fd);
-    this->dataStorage.addRoom(roomData);
-    server->sendMessageToAllExceptOne(this->parser.createMessage("ANSWER", "NEW-ROOM", roomData), fd);
+    if (data["name"].IsString()) {
+        std::string name = data["name"].GetString();
+        if (this->dataStorage.doesRoomAlreadyExists(name)) {
+            server->sendMessage(fd, this->parser.createErrorMessage("Room with given name already exits"));
+        } else {
+            RoomData roomData(name, fd);
+            this->dataStorage.addRoom(roomData);
+            server->sendMessageToAllExceptOne(this->parser.createAnswerMessage(NEW_ROOM, roomData), fd);
+        }
+    }
 }
 
 void ConnectionInputHandler::handleChatMessage(rapidjson::Value &data, int fd) {
     std::string text = data["text"].GetString();
     ChatMessage message(text);
     // TODO check if is correct answer
-    server->sendMessageToAllExceptOne(this->parser.createMessage("INFO", "CHAT-MSG", message), fd);
+    server->sendMessageToAllExceptOne(this->parser.createInfoMessage(CHAT_MSG, message), fd);
+}
+
+void ConnectionInputHandler::handleCanvasSync(rapidjson::Document &d, int fd) {
+    d["type"].SetString(ANSWER);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    d.Accept(writer);
+    server->sendMessageToAllExceptOne(buffer.GetString(), fd);
 }
 
 void ConnectionInputHandler::sendCurrentRoomsData(int fd) {
+    std::string all = "[";
+    int i = 0;
     for (const auto &entry: this->dataStorage.getRooms()) {
+        if(i != 0) {
+            all += ',';
+        }
         RoomData roomData = entry.second;
-        server->sendMessage(fd, this->parser.createMessage("ANSWER", "GET-ROOM-LIST", roomData));
+        all += roomData.toString();
+        i++;
     }
+    all += "]";
+    server->sendMessage(fd, this->parser.createAnswerMessage(GET_ROOM_LIST, all));
+
 }
 
 size_t ConnectionInputHandler::intValue(const std::string &value) {
     return std::hash<std::string>{}(value);
 }
 
-ConnectionInputHandler::ConnectionInputHandler(Server *server) : server(server) {}
+ConnectionInputHandler::ConnectionInputHandler() = default;
+
+ConnectionInputHandler::~ConnectionInputHandler() = default;
+
+void ConnectionInputHandler::setServer(Server *server) {
+    this->server = server;
+}

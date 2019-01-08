@@ -9,4 +9,8 @@ User::User(int id, const std::string &name) : id(id), name(name) {
     this->name = name;
 }
 
+std::string User::toString() {
+    return R"({id" : ")" + std::to_string(id) + R"(", "name": ")" + name + "\"}";
+}
+
 User::~User() = default;

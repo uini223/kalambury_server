@@ -18,7 +18,9 @@ class RoomData: public AbstractData {
 public:
     RoomData() {}
     RoomData(std::string name, int ownerId) : name(std::move(name)), ownerId(ownerId) {};
-    std::string toString();
+
+    std::string toString() override;
+
     std::string getName() {
         return name;
     }

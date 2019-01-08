@@ -1,3 +1,19 @@
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
 //
 // Created by Emil on 12/30/18.
 //
@@ -29,13 +45,39 @@ void WebMessageParser::eraseStop(std::string &data) {
     }
 }
 
-std::string WebMessageParser::createMessage(std::string eventType, std::string eventName, AbstractData &data) {
-    return R"(START{"type": ")" + eventType + "\"," +
-            R"("name": ")" + eventName  + "\"," +
-           "\"content\": " + data.toString() + "}" + "STOP";
+std::string WebMessageParser::createMessage(std::string eventType, std::string eventName, std::string content) {
+    return this->createMessageHeader(std::move(eventType), std::move(eventName)) + this->createMessageContent(content);
 }
 
 WebMessageParser::WebMessageParser() {
     std::uniform_int_distribution<int> dist(1, 999);
     this-> dist = dist;
+}
+
+std::string WebMessageParser::createErrorMessage(std::string errorMessage) {
+    return this->createMessageHeader( INFO,  ERROR) + this->createMessageContent(std::move(errorMessage));
+}
+
+std::string WebMessageParser::createMessageHeader(std::string eventType, std::string eventName) {
+    return R"(START{"type": ")" + eventType + "\"," +
+           R"("name": ")" + eventName  + "\",";
+}
+
+std::string WebMessageParser::createInfoMessage(std::string name, AbstractData &data) {
+    return createMessage(INFO, std::move(name), data.toString());
+}
+
+std::string WebMessageParser::createAnswerMessage(std::string name, AbstractData &data) {
+    return createMessage(ANSWER, std::move(name), data.toString());
+}
+
+std::string WebMessageParser::createAnswerMessage(std::string name, std::string &data) {
+    return createMessage(ANSWER, std::move(name), data);
+}
+
+std::string WebMessageParser::createMessageContent(std::string content) {
+    if (content.find('{') == std::string::npos || content.find('[') == std::string::npos) {
+        content = "\"" + content + "\"";
+    }
+    return "\"content\": " + content + "}" + STOP;
 }
