@@ -38,6 +38,7 @@ public:
     void sendMessage(int fd, char data[],size_t size);
     void sendMessage(int fd, std::string data);
     void sendMessageToAllExceptOne(std::string, int);
+    void sendMessageTo(std::vector<int>, std::string);
 
 private:
     void createServerSocket();

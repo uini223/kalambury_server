@@ -74,6 +74,15 @@ void Server::start() {
     }
 }
 
+void Server::sendMessageTo(std::vector<int> clients, std::string message) {
+    for (auto client: clients) {
+        char* pom = new char[message.length()+1];
+        strcpy(pom, message.c_str());
+        sendMessage(client, pom, message.length());
+        delete []pom;
+    }
+}
+
 Server::~Server() {
     close(this->server_fd);
     close(this->epoll_fd);
