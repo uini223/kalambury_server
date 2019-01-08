@@ -14,8 +14,8 @@ std::string RoomData::toString() {
         i++;
     }
     guests += ']';
-    return "{\"name\": " + this->name + "," +
-        "\"ownerId\": " + std::to_string(this->ownerId) + "," +
+    return R"({"name": ")" + this->name + "\"," +
+            R"("ownerId": ")" + std::to_string(this->ownerId) + "\"," +
         "\"guests\": " + guests + "}";
 
 }

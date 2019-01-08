@@ -30,8 +30,8 @@ void WebMessageParser::eraseStop(std::string &data) {
 }
 
 std::string WebMessageParser::createMessage(std::string eventType, std::string eventName, AbstractData &data) {
-    return "START{\"type\": " + eventType + "," +
-           "\"name\": " + eventName  + "," +
+    return R"(START{"type": ")" + eventType + "\"," +
+            R"("name": ")" + eventName  + "\"," +
            "\"content\": " + data.toString() + "}" + "STOP";
 }
 

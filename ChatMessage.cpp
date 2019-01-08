@@ -5,7 +5,7 @@
 #include "ChatMessage.h"
 
 std::string ChatMessage::toString() {
-    return "{\"text\": " + this->text + "}";
+    return R"({"text": ")" + this->text + "\"}";
 }
 
 ChatMessage::ChatMessage(const std::string &text) : text(text) {}

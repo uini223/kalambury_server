@@ -21,23 +21,27 @@ class Server;
 
 class ConnectionInputHandler {
     std::map<int, std::string> fds_with_messages;
-    std::map<int, std::string> ready_for_read;
     DataStorage dataStorage;
     WebMessageParser parser;
+    Server *server;
 
 public:
     ConnectionInputHandler();
-    int handleNewInput(std::string input, int fd);
-    std::string getMsgByFd(int fd);
-    void handleEvent(int fd, Server* server);
+
+    explicit ConnectionInputHandler(Server *server);
+
+    void handleNewInput(int fd, std::string);
+
+    void handleEvent(int fd, std::string);
+
     constexpr unsigned int str2int(const char* str, int h);
     void handleNewUser(rapidjson::Value &, int);
 
-    void handleNewRoom(rapidjson::Value &data, int fd, Server *server);
+    void handleNewRoom(rapidjson::Value &data, int fd);
 
-    void handleChatMessage(rapidjson::Value &value, int fd, Server *server);
+    void handleChatMessage(rapidjson::Value &value, int fd);
 
-    void sendCurrentRoomsData(int fd, Server *server);
+    void sendCurrentRoomsData(int fd);
 
     size_t intValue(const std::string &value);
 };

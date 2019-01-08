@@ -30,6 +30,7 @@ Server::Server(uint16_t port, const std::string &addr) : port(port), addr(addr) 
     this->initEpoll();
     this->createServerSocket();
     this->bindServerSocket();
+    this->connectionInputHandler = ConnectionInputHandler(this);
 }
 
 void Server::enterListenMode() {
@@ -65,9 +66,7 @@ void Server::start() {
                 } else {
                     printf("%zd bytes read.\n", bytes_read);
                     printf("Read '%s'\n", read_buff);
-                    if(connectionInputHandler.handleNewInput(read_buff, fd) >= 0 ) {
-                        connectionInputHandler.handleEvent(fd, this);
-                    }
+                    connectionInputHandler.handleNewInput(fd, read_buff);
                 }
             }
             bzero(read_buff, sizeof(read_buff));
