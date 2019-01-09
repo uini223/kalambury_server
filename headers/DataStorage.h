@@ -14,13 +14,28 @@
 class DataStorage {
     std::vector<User> users;
     std::unordered_map<std::string, RoomData> rooms;
+    std::vector<int> emptyVector;
+
 public:
     DataStorage();
+
     void addUser(User);
+
     void addRoom(RoomData roomData);
-    std::unordered_map<std::string, RoomData>& getRooms();
+
+    std::unordered_map<std::string, RoomData> &getRooms();
+
     std::string toString();
+
     bool doesRoomAlreadyExists(std::string roomName);
+
+    std::vector<int> &getRoomGuests(std::string roomName);
+
+    void startNewGameForRoom(std::string roomName, int ownerId);
+
+    std::string rollNewPassword();
+
+    bool isThatPassword(std::string roomName, std::string text);
 };
 
 

@@ -6,6 +6,10 @@
 #include "../headers/WebMessageParser.h"
 #include "../ChatMessage.h"
 
+// this handles straight data from socket (bufor pośredni)
+// concatenate inputs until it finds 'STOP' then it parse message
+// and passess it to main function for event handling
+// (kiedy juz przeczyta wiadomość czyści po sobie bufor)
 void ConnectionInputHandler::handleNewInput(int fd, std::string input) {
     if (this->fds_with_messages.count(fd)) {
         this->fds_with_messages[fd] += input;
@@ -21,6 +25,8 @@ void ConnectionInputHandler::handleNewInput(int fd, std::string input) {
     }
 }
 
+// main function for event handling
+// it chooses which function should be used for handling (based on if's xD)
 void ConnectionInputHandler::handleEvent(int fd, std::string message) {
     rapidjson::Document d;
     d.Parse(message.c_str());
@@ -34,31 +40,36 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
     if(event_type == "ANSWER"){
     } else if(intValue(event_type) == intValue("REQUEST")) {
         if (intValue(event_name) == intValue("NEW-USER")) {
-            this->handleNewUser(content,fd);
-        }
-        if (intValue(event_name) == intValue("NEW-ROOM")) {
+            this->handleNewUser(content, fd);
+        } else if (intValue(event_name) == intValue("NEW-ROOM")) {
             this->handleNewRoom(content, fd);
-        }
-        if (intValue(event_name) == intValue("GET-ROOM-LIST")) {
+        } else if (intValue(event_name) == intValue("GET-ROOM-LIST")) {
             this->sendCurrentRoomsData(fd);
-        }
-        if (intValue(event_name) == intValue("SYN_CANVAS")) {
+        } else if (intValue(event_name) == intValue("SYN_CANVAS")) {
             this->handleCanvasSync(d, fd);
+        } else if (intValue(event_name) == intValue("NEW_GAME")) {
+             this->handleNewGame(d, fd);
         }
     } else if(event_type == "INFO") {
         if( event_name == "CHAT-MSG") this->handleChatMessage(content, fd);
     }
 }
 
+// sorki nie wiedzialem tego wcześniej niech jeszcze zostanie
 constexpr unsigned int ConnectionInputHandler::str2int(const char* str, int h){
     return !str[h] ? 5381 : (str2int(str, h+1) * 33) ^ str[h];
 }
 
+// handles new user
+// adds user to data storage
 void ConnectionInputHandler::handleNewUser(rapidjson::Value &name, int id) {
     User user(id, name["name"].GetString());
     this->dataStorage.addUser(user);
 }
 
+// handles new room msg
+// if user type name that already exist server sends error msg that room already exists
+// else add new room and send msg to all clients that new room was added
 void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd) {
     if (data["name"].IsString()) {
         std::string name = data["name"].GetString();
@@ -72,21 +83,47 @@ void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd) {
     }
 }
 
+// handles chat messeage
+// sends this message to all room users and
+// checks if 'text' written on chat is current password
+// if yes sens victory message that and handles victory (doc over method)
 void ConnectionInputHandler::handleChatMessage(rapidjson::Value &data, int fd) {
     std::string text = data["text"].GetString();
-    ChatMessage message(text);
-    // TODO check if is correct answer
-    server->sendMessageToAllExceptOne(this->parser.createInfoMessage(CHAT_MSG, message), fd);
+    std::string roomName = data["roomName"].GetString();
+    ChatMessage message(text, roomName);
+    server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), this->parser.createInfoMessage(CHAT_MSG, message));
+    if(this->dataStorage.isThatPassword(roomName, text)) {
+        this->handleVictory(roomName, fd);
+    }
+
 }
 
+// handles canvas sync msg
+// just passes this message to all room guests
 void ConnectionInputHandler::handleCanvasSync(rapidjson::Document &d, int fd) {
     d["type"].SetString(ANSWER);
+    std::string roomName = d["roomName"].GetString();
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     d.Accept(writer);
-    server->sendMessageToAllExceptOne(buffer.GetString(), fd);
+    server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), buffer.GetString());
 }
 
+
+void ConnectionInputHandler::handleVictory(std::string roomName, int fd) {
+    //TODO send msg that user with fd won the game, reroll the password and set winner as room owner
+}
+
+// when user creates new room should send new game request to initiate new game
+// new password is rolled and new owner is set
+// !! new game event should be sent after event creation !!
+void ConnectionInputHandler::handleNewGame(rapidjson::Document d, int fd) {
+    std::string roomName = d["roomName"].GetString();
+    int ownerId = d["ownerId"].GetInt(); //new room owner
+    this->dataStorage.startNewGameForRoom(roomName, ownerId);
+}
+
+// sends current roomw list after get-room-list request
 void ConnectionInputHandler::sendCurrentRoomsData(int fd) {
     std::string all = "[";
     int i = 0;
@@ -103,6 +140,7 @@ void ConnectionInputHandler::sendCurrentRoomsData(int fd) {
 
 }
 
+// hash value of string i'm not sure if we need this but sometimes string with '==' does not work
 size_t ConnectionInputHandler::intValue(const std::string &value) {
     return std::hash<std::string>{}(value);
 }

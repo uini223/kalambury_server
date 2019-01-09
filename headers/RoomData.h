@@ -8,16 +8,28 @@
 #define KALAMBURY_SERVER_ROOMDATA_H
 
 #include <string>
-#include <unordered_set>
+#include <vector>
+#include <algorithm>
 #include "AbstractData.h"
 
 class RoomData: public AbstractData {
     std::string name;
     int ownerId;
-    std::unordered_set<int> guests;
+    std::vector<int> guests;
+    std::string currentPassowrd;
 public:
     RoomData() {}
     RoomData(std::string name, int ownerId) : name(std::move(name)), ownerId(ownerId) {};
+
+    void changeOwner(int);
+
+    void changePassword(std::string);
+
+    bool addGuest(int fd);
+
+    bool isPassowrdCorrect(std::string);
+
+    std::vector<int>& getGuests();
 
     std::string toString() override;
 
