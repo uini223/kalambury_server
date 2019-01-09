@@ -38,6 +38,8 @@ public:
 
     std::string createAnswerMessage(std::string name, std::string &);
 
+    std::string createVictoryMessage(std::string &roomName, int fd);
+
 private:
     std::string createMessageHeader(std::string eventType, std::string eventName);
 

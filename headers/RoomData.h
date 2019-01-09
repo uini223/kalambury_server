@@ -29,6 +29,8 @@ public:
 
     bool isPassowrdCorrect(std::string);
 
+    int getOwnerId();
+
     std::vector<int>& getGuests();
 
     std::string toString() override;

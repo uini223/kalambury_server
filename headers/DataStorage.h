@@ -31,6 +31,8 @@ public:
 
     std::vector<int> &getRoomGuests(std::string roomName);
 
+    int getRoomOwnerId(std::string roomName);
+
     void startNewGameForRoom(std::string roomName, int ownerId);
 
     std::string rollNewPassword();

@@ -45,7 +45,11 @@ void RoomData::changeOwner(int ownerId) {
     int oldOwner = this->ownerId;
     this->ownerId = ownerId;
     this->guests.push_back(ownerId);
-    this->guests.remove(oldOwner);
+    for(int i=0; i<this->guests.size(); i++) {
+        if(this->guests[i] == oldOwner) {
+            this->guests.erase(this->guests.begin() + i);
+        }
+    }
 }
 
 //checks if given text (message on chat) is correct
@@ -54,4 +58,8 @@ bool RoomData::isPassowrdCorrect(std::string text) {
     std::transform(this->currentPassowrd.begin(), this->currentPassowrd.end(), this->currentPassowrd.begin(),
             ::tolower);
     return text.find(currentPassowrd) != std::string::npos;
+}
+
+int RoomData::getOwnerId() {
+    return this->ownerId;
 }

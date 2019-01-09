@@ -51,7 +51,7 @@ public:
 
     void setServer(Server *server);
 
-    void handleNewGame(rapidjson::Document d, int fd);
+    void handleNewGame(rapidjson::Value &d, int fd);
 
     void handleVictory(std::string roomName, int fd);
 };

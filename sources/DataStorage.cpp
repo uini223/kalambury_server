@@ -1,5 +1,11 @@
 #include <utility>
 
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
 //
 // Created by ramon on 05.01.19.
 //
@@ -75,3 +81,10 @@ bool DataStorage::isThatPassword(std::string roomName, std::string text) {
         return false;
     }
 }
+
+int DataStorage::getRoomOwnerId(std::string roomName) {
+    if(this->doesRoomAlreadyExists(roomName)) {
+        return this->rooms[roomName].getOwnerId();
+    } else {
+        return 0;
+    }}

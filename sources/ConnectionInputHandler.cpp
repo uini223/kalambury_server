@@ -39,19 +39,22 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
 
     if(event_type == "ANSWER"){
     } else if(intValue(event_type) == intValue("REQUEST")) {
-        if (intValue(event_name) == intValue("NEW-USER")) {
+        if (intValue(event_name) == intValue("NEW_USER")) {
             this->handleNewUser(content, fd);
-        } else if (intValue(event_name) == intValue("NEW-ROOM")) {
+        } else if (intValue(event_name) == intValue(NEW_ROOM)) {
             this->handleNewRoom(content, fd);
-        } else if (intValue(event_name) == intValue("GET-ROOM-LIST")) {
+        } else if (intValue(event_name) == intValue(GET_ROOM_LIST)) {
             this->sendCurrentRoomsData(fd);
-        } else if (intValue(event_name) == intValue("SYN_CANVAS")) {
-            this->handleCanvasSync(d, fd);
         } else if (intValue(event_name) == intValue("NEW_GAME")) {
-             this->handleNewGame(d, fd);
+             this->handleNewGame(content, fd);
         }
     } else if(event_type == "INFO") {
-        if( event_name == "CHAT-MSG") this->handleChatMessage(content, fd);
+        if( event_name == "CHAT_MSG") {
+            this->handleChatMessage(content, fd);
+        }
+        else if (intValue(event_name) == intValue("SYN_CANVAS")) {
+            this->handleCanvasSync(d, fd);
+        }
     }
 }
 
@@ -78,7 +81,7 @@ void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd) {
         } else {
             RoomData roomData(name, fd);
             this->dataStorage.addRoom(roomData);
-            server->sendMessageToAllExceptOne(this->parser.createAnswerMessage(NEW_ROOM, roomData), fd);
+            server->sendMessageToAllExceptOne(this->parser.createInfoMessage(NEW_ROOM, roomData), fd);
         }
     }
 }
@@ -111,16 +114,21 @@ void ConnectionInputHandler::handleCanvasSync(rapidjson::Document &d, int fd) {
 
 
 void ConnectionInputHandler::handleVictory(std::string roomName, int fd) {
+    std::string data = this->parser.createVictoryMessage(roomName, fd);
+    this->server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), data);
+    this->server->sendMessage(this->dataStorage.getRoomOwnerId(roomName), data);
+    this->dataStorage.startNewGameForRoom(roomName, fd);
     //TODO send msg that user with fd won the game, reroll the password and set winner as room owner
 }
 
 // when user creates new room should send new game request to initiate new game
 // new password is rolled and new owner is set
 // !! new game event should be sent after event creation !!
-void ConnectionInputHandler::handleNewGame(rapidjson::Document d, int fd) {
+void ConnectionInputHandler::handleNewGame(rapidjson::Value &d, int fd) {
     std::string roomName = d["roomName"].GetString();
     int ownerId = d["ownerId"].GetInt(); //new room owner
     this->dataStorage.startNewGameForRoom(roomName, ownerId);
+    // TODO send answer with current password
 }
 
 // sends current roomw list after get-room-list request
