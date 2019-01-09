@@ -12,6 +12,7 @@
 #define INFO "INFO"
 #define ERROR "ERROR"
 #define ANSWER "ANSWER"
+#define OK "OK"
 
 #include <string>
 #include <vector>
@@ -39,6 +40,8 @@ public:
     std::string createAnswerMessage(std::string name, std::string &);
 
     std::string createVictoryMessage(std::string &roomName, int fd);
+
+    std::string createOKMessage();
 
 private:
     std::string createMessageHeader(std::string eventType, std::string eventName);

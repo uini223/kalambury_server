@@ -55,7 +55,7 @@ WebMessageParser::WebMessageParser() {
 }
 
 std::string WebMessageParser::createErrorMessage(std::string errorMessage) {
-    return this->createMessageHeader(INFO,  ERROR) + this->createMessageContent(std::move(errorMessage));
+    return this->createMessageHeader(INFO,  ERROR) + this->createMessageContent("{\"message\": " + errorMessage + "}");
 }
 
 std::string WebMessageParser::createMessageHeader(std::string eventType, std::string eventName) {
@@ -86,4 +86,8 @@ std::string WebMessageParser::createVictoryMessage(std::string &roomName, int fd
     return  "{\"roomName\": " + roomName +
     ",\"winnerId\": " + std::to_string(fd) + "}";
 
+}
+
+std::string WebMessageParser::createOKMessage() {
+    return this->createMessageHeader(INFO,  OK) + this->createMessageContent("");
 }

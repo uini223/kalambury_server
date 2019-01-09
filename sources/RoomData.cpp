@@ -24,7 +24,7 @@ std::string RoomData::toString() {
 }
 
 void RoomData::changePassword(std::string newPassword) {
-    this->currentPassowrd = std::move(newPassword);
+    this->currentPassword = std::move(newPassword);
 }
 
 bool RoomData::addGuest(int fd) {
@@ -55,9 +55,9 @@ void RoomData::changeOwner(int ownerId) {
 //checks if given text (message on chat) is correct
 bool RoomData::isPassowrdCorrect(std::string text) {
     std::transform(text.begin(), text.end(), text.begin(), ::tolower);
-    std::transform(this->currentPassowrd.begin(), this->currentPassowrd.end(), this->currentPassowrd.begin(),
+    std::transform(this->currentPassword.begin(), this->currentPassword.end(), this->currentPassword.begin(),
             ::tolower);
-    return text.find(currentPassowrd) != std::string::npos;
+    return text.find(currentPassword) != std::string::npos;
 }
 
 int RoomData::getOwnerId() {

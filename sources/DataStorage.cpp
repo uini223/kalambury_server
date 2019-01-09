@@ -88,3 +88,11 @@ int DataStorage::getRoomOwnerId(std::string roomName) {
     } else {
         return 0;
     }}
+
+bool DataStorage::addGuestToRoom(std::string &roomName, int fd) {
+    if(this->doesRoomAlreadyExists(roomName)) {
+        return this->rooms[roomName].addGuest(fd);
+    } else {
+        return false;
+    }
+}

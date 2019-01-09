@@ -16,7 +16,7 @@ class RoomData: public AbstractData {
     std::string name;
     int ownerId;
     std::vector<int> guests;
-    std::string currentPassowrd;
+    std::string currentPassword;
 public:
     RoomData() {}
     RoomData(std::string name, int ownerId) : name(std::move(name)), ownerId(ownerId) {};

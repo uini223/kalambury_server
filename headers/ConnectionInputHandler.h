@@ -54,6 +54,8 @@ public:
     void handleNewGame(rapidjson::Value &d, int fd);
 
     void handleVictory(std::string roomName, int fd);
+
+    void handleJoinRoom(rapidjson::Value &value, int fd);
 };
 
 #include "Server.h"
@@ -64,5 +66,6 @@ public:
 #define NEW_USER "NEW_USER"
 #define NEW_GAME "NEW_GAME"
 #define SYN_CANVAS "SYN_CANVAS"
+#define JOIN_ROOM "JOIN_ROOM"
 
 #endif //KALAMBURY_SERVER_CONNECTIONINPUTHANDLER_H

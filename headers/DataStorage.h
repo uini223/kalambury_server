@@ -38,6 +38,8 @@ public:
     std::string rollNewPassword();
 
     bool isThatPassword(std::string roomName, std::string text);
+
+    bool addGuestToRoom(std::string &roomName, int);
 };
 
 

@@ -47,6 +47,8 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
             this->sendCurrentRoomsData(fd);
         } else if (intValue(event_name) == intValue(NEW_GAME)) {
              this->handleNewGame(content, fd);
+        } else if (intValue(event_name) == intValue(JOIN_ROOM)) {
+            this-> handleJoinRoom(content, fd);
         }
     } else if(event_type == INFO) {
         if( event_name == CHAT_MSG) {
@@ -101,6 +103,16 @@ void ConnectionInputHandler::handleChatMessage(rapidjson::Value &data, int fd) {
 
 }
 
+void ConnectionInputHandler::handleJoinRoom(rapidjson::Value &value, int fd) {
+    std::string roomName = value["roomName"].GetString();
+    if(this->dataStorage.addGuestToRoom(roomName, fd)) {
+        this->server->sendMessage(fd, this->parser.createOKMessage());
+    } else {
+        this->server->sendMessage(fd, this->parser.createErrorMessage("Room too crowded"));
+    }
+}
+
+
 // handles canvas sync msg
 // just passes this message to all room guests
 void ConnectionInputHandler::handleCanvasSync(rapidjson::Document &d, int fd) {
@@ -111,7 +123,6 @@ void ConnectionInputHandler::handleCanvasSync(rapidjson::Document &d, int fd) {
     d.Accept(writer);
     server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), buffer.GetString());
 }
-
 
 void ConnectionInputHandler::handleVictory(std::string roomName, int fd) {
     std::string data = this->parser.createVictoryMessage(roomName, fd);
