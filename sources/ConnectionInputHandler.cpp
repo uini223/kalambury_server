@@ -37,22 +37,22 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
     auto event_name = std::string(name.GetString());
     auto event_type = std::string(type.GetString());
 
-    if(event_type == "ANSWER"){
-    } else if(intValue(event_type) == intValue("REQUEST")) {
-        if (intValue(event_name) == intValue("NEW_USER")) {
+    if(event_type == ANSWER){
+    } else if(intValue(event_type) == intValue(REQUEST)) {
+        if (intValue(event_name) == intValue(NEW_USER)) {
             this->handleNewUser(content, fd);
         } else if (intValue(event_name) == intValue(NEW_ROOM)) {
             this->handleNewRoom(content, fd);
         } else if (intValue(event_name) == intValue(GET_ROOM_LIST)) {
             this->sendCurrentRoomsData(fd);
-        } else if (intValue(event_name) == intValue("NEW_GAME")) {
+        } else if (intValue(event_name) == intValue(NEW_GAME)) {
              this->handleNewGame(content, fd);
         }
-    } else if(event_type == "INFO") {
-        if( event_name == "CHAT_MSG") {
+    } else if(event_type == INFO) {
+        if( event_name == CHAT_MSG) {
             this->handleChatMessage(content, fd);
         }
-        else if (intValue(event_name) == intValue("SYN_CANVAS")) {
+        else if (intValue(event_name) == intValue(SYN_CANVAS)) {
             this->handleCanvasSync(d, fd);
         }
     }
@@ -118,7 +118,7 @@ void ConnectionInputHandler::handleVictory(std::string roomName, int fd) {
     this->server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), data);
     this->server->sendMessage(this->dataStorage.getRoomOwnerId(roomName), data);
     this->dataStorage.startNewGameForRoom(roomName, fd);
-    //TODO send msg that user with fd won the game, reroll the password and set winner as room owner
+// TODO send msg that new game started
 }
 
 // when user creates new room should send new game request to initiate new game
