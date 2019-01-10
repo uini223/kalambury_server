@@ -6,14 +6,22 @@
 #define KALAMBURY_SERVER_USER_H
 
 #include <string>
+#include "AbstractData.h"
 
 
-class User {
+class User: AbstractData {
     int id;
     std::string name;
 public:
+    User();
+
     User(int id, const std::string &name);
     virtual ~User();
+    std::string toString() override;
+
+    int getId();
+
+    std::string getName();
 
 };
 

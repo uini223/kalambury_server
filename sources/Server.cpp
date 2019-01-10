@@ -30,6 +30,7 @@ Server::Server(uint16_t port, const std::string &addr) : port(port), addr(addr) 
     this->initEpoll();
     this->createServerSocket();
     this->bindServerSocket();
+    this->connectionInputHandler.setServer(this);
 }
 
 void Server::enterListenMode() {
@@ -42,7 +43,7 @@ void Server::enterListenMode() {
 void Server::start() {
     this->enterListenMode();
     this->addEvent(createEvent(EPOLLIN, 0));
-    int event_count;
+    int event_count = 0;
     char read_buff[255];
     while (true) {
         event_count = epoll_wait(this->epoll_fd, this->events, sizeof(this->events), -1);
@@ -65,14 +66,17 @@ void Server::start() {
                 } else {
                     printf("%zd bytes read.\n", bytes_read);
                     printf("Read '%s'\n", read_buff);
-                    int pom = connectionInputHandler.handleNewInput(read_buff, fd);
-                    if(pom>=0){
-                        connectionInputHandler.handleEvent(fd,pom,connectionInputHandler.getMsgByMsgID(pom,fd));
-                    }
+                    connectionInputHandler.handleNewInput(fd, read_buff);
                 }
             }
             bzero(read_buff, sizeof(read_buff));
         }
+    }
+}
+
+void Server::sendMessageTo(std::vector<int> clients, std::string message) {
+    for (auto client: clients) {
+        sendMessage(client, message);
     }
 }
 
@@ -81,7 +85,6 @@ Server::~Server() {
     close(this->epoll_fd);
     for (int client_fd : clientFds)
         close(client_fd);
-
     printf("Closing server\n");
 }
 
@@ -111,7 +114,7 @@ void Server::acceptNewConnection() {
 }
 
 epoll_event Server::createEvent(uint32_t eventType, int fd) {
-    struct epoll_event event;
+    struct epoll_event event{};
     event.events = eventType;
     event.data.fd = fd;
     printf("New event control created for fd=%d \n", fd);
@@ -120,5 +123,42 @@ epoll_event Server::createEvent(uint32_t eventType, int fd) {
 
 void Server::sendMessage(int fd, char *data, size_t size) {
     auto res = write(fd, data, size);
-    printf("Sent %zi bytes to fd=%d\n", res, fd);
+    printf("Sent %zi bytes to fd=%d\ncontent: %s\n", res, fd, data);
+}
+
+void Server::sendMessage(int fd, std::string data) {
+    size_t size1 = 0;
+    std::string temp;
+    while(data.length() > 0) {
+        if(data.length() > 255) {
+            size1 = 255;
+            temp = data.substr(0, 255);
+        } else {
+            size1 = data.length();
+            temp = data;
+        }
+        data.erase(0, size1);
+        char *buff = new char[size1+1];
+        strcpy(buff,temp.c_str());
+        sendMessage(fd, buff, size1);
+    }
+}
+
+void Server::sendMessageToAllExceptOne(std::string message, int fd) {
+    for (auto clientFd: this->clientFds) {
+            if(clientFd != fd) {
+                char* pom = new char[message.length()+1];
+                strcpy(pom, message.c_str());
+                sendMessage(clientFd, pom, message.length());
+                delete []pom;
+            }
+    }
+}
+
+void Server::sendMessageToExceptOne(std::vector<int> &fds, std::string data, int fd) {
+    for(auto clientFd: fds) {
+        if(clientFd != fd) {
+            sendMessage(clientFd, data);
+        }
+    }
 }

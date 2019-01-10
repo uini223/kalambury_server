@@ -27,7 +27,6 @@ class Server {
     std::string addr;
     std::unordered_set<int> clientFds;
     struct epoll_event events[20];
-    std::vector<User> users;
     ConnectionInputHandler connectionInputHandler;
 
 public:
@@ -36,13 +35,18 @@ public:
     virtual ~Server();
 
     void start();
+    void sendMessage(int fd, char data[],size_t size);
+    void sendMessage(int fd, std::string data);
+    void sendMessageToAllExceptOne(std::string, int);
+    void sendMessageTo(std::vector<int>, std::string);
+
+    void sendMessageToExceptOne(std::vector<int> &fds, std::string data, int fd);
 
 private:
     void createServerSocket();
     void bindServerSocket();
     void enterListenMode();
     void acceptNewConnection();
-    void sendMessage(int fd, char data[],size_t size);
     epoll_event createEvent(uint32_t eventType, int fd);
     void initEpoll();
     void addEvent(epoll_event event);

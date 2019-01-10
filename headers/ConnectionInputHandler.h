@@ -10,26 +10,64 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <fstream>
 #include "DataStorage.h"
 #include "../libs/rapidjson/document.h"
 #include "../libs/rapidjson/writer.h"
 #include "../libs/rapidjson/stringbuffer.h"
+#include "WebMessageParser.h"
 
-typedef std::map<int, std::string> MSGS_WITH_IDS;
-typedef std::map<int, std::map<int, std::string>> MSGS_WITH_FDS;
+class Server;
+
 
 class ConnectionInputHandler {
-    std::map<int, std::map<int, std::string>> fds_with_messages;
+    std::map<int, std::string> fds_with_messages;
     DataStorage dataStorage;
+    WebMessageParser parser;
+    Server *server;
+
 public:
+    ~ConnectionInputHandler();
+
     ConnectionInputHandler();
-    int handleNewInput(std::string input, int fd);
-    std::string getMsgByMsgID(int msg_id, int fd);
-    void handleEvent(int fd, int msg_id, std::string message);
+
+    void handleNewInput(int fd, std::string);
+
+    void handleEvent(int fd, std::string);
+
     constexpr unsigned int str2int(const char* str, int h);
-    void handleNewUser(std::string,int);
-    char* toCStr(std::string);
+
+    void handleNewUser(rapidjson::Value &, int);
+
+    void handleNewRoom(rapidjson::Value &data, int fd);
+
+    void handleChatMessage(rapidjson::Value &value, int fd);
+
+    void handleCanvasSync(rapidjson::Document &, int fd);
+
+    void sendCurrentRoomsData(int fd);
+
+    size_t intValue(const std::string &value);
+
+    void setServer(Server *server);
+
+    void handleNewGame(rapidjson::Value &d, int fd);
+
+    void handleVictory(std::string roomName, int fd);
+
+    void handleJoinRoom(rapidjson::Value &value, int fd);
+
+    void handleUserQuit(int fd);
 };
 
+#include "Server.h"
+#define NEW_ROOM "NEW_ROOM"
+#define CHAT_MSG "CHAT_MSG"
+#define GET_ROOM_LIST "GET_ROOM_LIST"
+#define REQUEST "REQUEST"
+#define NEW_USER "NEW_USER"
+#define NEW_GAME "NEW_GAME"
+#define SYN_CANVAS "CANVAS"
+#define JOIN_ROOM "JOIN_ROOM"
 
 #endif //KALAMBURY_SERVER_CONNECTIONINPUTHANDLER_H

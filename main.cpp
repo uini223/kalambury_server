@@ -7,15 +7,18 @@
 Server *server;
 
 void ctrl_c(int);
-void testParser();
 
 int main() {
     // catch ctrl+c signal and quit save
     signal(SIGINT, ctrl_c);
+    signal(SIGABRT, ctrl_c);
+    signal(SIGTERM, ctrl_c);
+    signal(SIGQUIT, ctrl_c);
+
 
     // testParser();
     //    new server instance (port, ipv4 address)
-    server = new Server(20000, "127.0.0.1");
+    server = new Server(20000, "0.0.0.0");
     // start running server
     server->start();
 

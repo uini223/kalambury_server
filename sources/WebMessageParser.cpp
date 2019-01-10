@@ -1,3 +1,19 @@
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
 //
 // Created by Emil on 12/30/18.
 //
@@ -10,94 +26,69 @@
 // TODO this might return packageStructure to discuse
 std::string WebMessageParser::parse(std::string data) {
     PackageStucture packageStucture;
-    std::string content = "";
     this->eraseStart(data);
     this->eraseStop(data);
-    auto openBracket = data.find('[');
-    auto closeBracket = data.find(']');
-    while (openBracket != -std::string::npos && closeBracket != std::string::npos) {
-        content += data.substr(openBracket+1, closeBracket-openBracket-1);
-        data.erase(openBracket, closeBracket-openBracket+1);
-        openBracket = data.find('[');
-        closeBracket = data.find(']');
-    }
-    return content;
-}
-
-//  TODO change that method to pack correctly
-std::vector<std::string> WebMessageParser::packString(std::string data, int msg_id) {
-    std::vector<PackageStucture> pckg_list;
-    std::vector<std::string> out_list;
-    PackageStucture pom;
-    pom.message_id = msg_id;
-    int package_counter = 0;
-
-    for (int i = 0; i < data.length(); i += PACKAGE_DATA_SIZE) {
-        if (i == 0) {
-            pom.data = "START";
-            package_counter++;
-            pckg_list.push_back(pom);
-        }
-
-        if (i * PACKAGE_DATA_SIZE + PACKAGE_DATA_SIZE > data.length()) {
-            pom.data = data.substr(i * PACKAGE_DATA_SIZE, data.length());
-            pckg_list.push_back(pom);
-            package_counter++;
-
-            pom.data = "STOP";
-            pckg_list.push_back(pom);
-            break;
-        } else {
-            pom.data = data.substr(i, PACKAGE_DATA_SIZE);
-            package_counter++;
-            pckg_list.push_back(pom);
-        }
-    }
-    for (auto var : pckg_list) {
-        if (var.data.find("START") != std::string::npos || var.data.find("STOP") != std::string::npos) {
-            out_list.push_back(var.data + toString(var.message_id));
-        } else {
-            out_list.push_back(toString(var.message_id) + "[" + var.data + "]");
-        }
-    }
-
-    return out_list;
-}
-
-int WebMessageParser::getMessageId(std::string &data) {
-    std::string message_id;
-    auto findStart = data.find(START);
-    auto findStop = data.find(STOP);
-    if (findStart != -1) {
-        message_id = data.substr(findStart + START_LENGTH, ID_LENGTH);
-        data.erase(findStart + START_LENGTH, ID_LENGTH);
-
-    } else if (findStop != -1) {
-        message_id = data.substr(findStop + STOP_LENGTH, ID_LENGTH);
-        data.erase(findStop + STOP_LENGTH, ID_LENGTH);
-
-    } else {
-        message_id = data.substr(0, ID_LENGTH);
-        data.erase(0, ID_LENGTH);
-    }
-    return std::stoi(message_id);
-}
-
-std::string WebMessageParser::toString(int number) {
-    switch (std::to_string(number).length()) {
-        case 1:
-            return "00" + std::to_string(number);
-        case 2:
-            return "0" + std::to_string(number);
-        case 3:
-            return std::to_string(number);
-    }
+    return data;
 }
 
 void WebMessageParser::eraseStart(std::string &data) {
-    data.erase(data.find(START), START_LENGTH);
+    int start = data.find(START);
+    if(start != std::string::npos) {
+        data.erase(data.find(START), START_LENGTH);
+    }
 }
 
 void WebMessageParser::eraseStop(std::string &data) {
-    data.erase(data.find(STOP), STOP_LENGTH);
+    int stop = data.find(STOP);
+    if(stop != std::string::npos) {
+        data.erase(data.find(STOP), STOP_LENGTH);
+    }
+}
+
+std::string WebMessageParser::createMessage(std::string eventType, std::string eventName, std::string content) {
+    return this->createMessageHeader(std::move(eventType), std::move(eventName)) + this->createMessageContent(content);
+}
+
+WebMessageParser::WebMessageParser() {
+    std::uniform_int_distribution<int> dist(1, 999);
+    this-> dist = dist;
+}
+
+std::string WebMessageParser::createErrorMessage(std::string errorMessage) {
+    return this->createMessageHeader(INFO,  ERROR) + this->createMessageContent("{\"message\": " + errorMessage + "}");
+}
+
+std::string WebMessageParser::createMessageHeader(std::string eventType, std::string eventName) {
+    return R"(START{"type": ")" + eventType + "\"," +
+           R"("name": ")" + eventName  + "\",";
+}
+
+std::string WebMessageParser::createInfoMessage(std::string name, AbstractData &data) {
+    return createMessage(INFO, std::move(name), data.toString());
+}
+
+std::string WebMessageParser::createAnswerMessage(std::string name, AbstractData &data) {
+    return createMessage(ANSWER, std::move(name), data.toString());
+}
+
+std::string WebMessageParser::createAnswerMessage(std::string name, std::string &data) {
+    return createMessage(ANSWER, std::move(name), data);
+}
+
+std::string WebMessageParser::createMessageContent(std::string content) {
+    if (content.find('[') == -1 && content.find('{')) {
+        content = "\"" + content + "\"";
+    }
+
+    return "\"content\": " + content + "}" + STOP;
+}
+
+std::string WebMessageParser::createVictoryMessage(std::string &roomName, int fd) {
+    return  "{\"roomName\": " + roomName +
+    ",\"winnerId\": " + std::to_string(fd) + "}";
+
+}
+
+std::string WebMessageParser::createOKMessage() {
+    return this->createMessageHeader(INFO,  OK) + this->createMessageContent("");
 }

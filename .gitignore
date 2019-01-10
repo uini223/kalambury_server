@@ -3,7 +3,7 @@ build
 cmake-build-debug
 .idea
 CMakeFiles
+Makefile
 kalambury_server
 kalambury_server.cbp
-Makefile
 cmake_install.cm
