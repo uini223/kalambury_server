@@ -2,3 +2,7 @@ build
 .vscode
 cmake-build-debug
 .idea
+CMakeFiles
+Makefile
+kalambury_server
+kalambury_server.cbp
