@@ -76,10 +76,7 @@ void Server::start() {
 
 void Server::sendMessageTo(std::vector<int> clients, std::string message) {
     for (auto client: clients) {
-        char* pom = new char[message.length()+1];
-        strcpy(pom, message.c_str());
-        sendMessage(client, pom, message.length());
-        delete []pom;
+        sendMessage(client, message);
     }
 }
 
@@ -126,14 +123,25 @@ epoll_event Server::createEvent(uint32_t eventType, int fd) {
 
 void Server::sendMessage(int fd, char *data, size_t size) {
     auto res = write(fd, data, size);
-    printf("Sent %zi bytes to fd=%d\n", res, fd);
+    printf("Sent %zi bytes to fd=%d\ncontent: %s\n", res, fd, data);
 }
 
 void Server::sendMessage(int fd, std::string data) {
-    char *buff = new char[data.length()+1];
-    size_t size = data.length();
-    strcpy(buff,data.c_str());
-    sendMessage(fd, buff, size);
+    size_t size1 = 0;
+    std::string temp;
+    while(data.length() > 0) {
+        if(data.length() > 255) {
+            size1 = 255;
+            temp = data.substr(0, 255);
+        } else {
+            size1 = data.length();
+            temp = data;
+        }
+        data.erase(0, size1);
+        char *buff = new char[size1+1];
+        strcpy(buff,temp.c_str());
+        sendMessage(fd, buff, size1);
+    }
 }
 
 void Server::sendMessageToAllExceptOne(std::string message, int fd) {
@@ -144,5 +152,13 @@ void Server::sendMessageToAllExceptOne(std::string message, int fd) {
                 sendMessage(clientFd, pom, message.length());
                 delete []pom;
             }
+    }
+}
+
+void Server::sendMessageToExceptOne(std::vector<int> &fds, std::string data, int fd) {
+    for(auto clientFd: fds) {
+        if(clientFd != fd) {
+            sendMessage(clientFd, data);
+        }
     }
 }

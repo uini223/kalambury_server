@@ -11,17 +11,18 @@
 #include <vector>
 #include <algorithm>
 #include "AbstractData.h"
+#include "User.h"
 
 class RoomData: public AbstractData {
     std::string name;
-    int ownerId;
+    std::string owner;
     std::vector<int> guests;
     std::string currentPassword;
 public:
     RoomData() {}
-    RoomData(std::string name, int ownerId) : name(std::move(name)), ownerId(ownerId) {};
+    RoomData(std::string name, std::string owner) : name(std::move(name)), owner(owner) {};
 
-    void changeOwner(int);
+    void changeOwner(User&);
 
     void changePassword(std::string);
 
@@ -29,7 +30,7 @@ public:
 
     bool isPassowrdCorrect(std::string);
 
-    int getOwnerId();
+    std::string getOwnerName();
 
     std::vector<int>& getGuests();
 

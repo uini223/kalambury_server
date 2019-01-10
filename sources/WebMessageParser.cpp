@@ -76,9 +76,10 @@ std::string WebMessageParser::createAnswerMessage(std::string name, std::string 
 }
 
 std::string WebMessageParser::createMessageContent(std::string content) {
-    if (content.find('{') == std::string::npos || content.find('[') == std::string::npos) {
+    if (content.find('[') == -1 && content.find('{')) {
         content = "\"" + content + "\"";
     }
+
     return "\"content\": " + content + "}" + STOP;
 }
 

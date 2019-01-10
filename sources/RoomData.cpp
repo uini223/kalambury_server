@@ -7,19 +7,9 @@
 #include "../headers/RoomData.h"
 
 std::string RoomData::toString() {
-    std::string guests = "[";
-    int i = 0;
-    for(int guest: this->guests) {
-        if (i != 0) {
-           guests += ",";
-        }
-        guests+= std::to_string(guest);
-        i++;
-    }
-    guests += ']';
     return R"({"name": ")" + this->name + "\"," +
-            R"("ownerId": ")" + std::to_string(this->ownerId) + "\"," +
-        "\"guests\": " + guests + "}";
+            R"("ownerName": ")" + this->owner + "\"," +
+            R"("guests": ")" + std::to_string(this->guests.size()) + "\"}";
 
 }
 
@@ -41,13 +31,14 @@ std::vector<int>& RoomData::getGuests() {
 }
 
 //changes owner removes new one from guest and pushes old one to guest
-void RoomData::changeOwner(int ownerId) {
-    int oldOwner = this->ownerId;
-    this->ownerId = ownerId;
-    this->guests.push_back(ownerId);
+void RoomData::changeOwner(User &user) {
+    std::string oldOwner = this->owner;
+    this->owner = user.getName();
+    this->guests.push_back(user.getId());
     for(int i=0; i<this->guests.size(); i++) {
-        if(this->guests[i] == oldOwner) {
+        if(this->guests[i] == user.getId()) {
             this->guests.erase(this->guests.begin() + i);
+            break;
         }
     }
 }
@@ -60,6 +51,6 @@ bool RoomData::isPassowrdCorrect(std::string text) {
     return text.find(currentPassword) != std::string::npos;
 }
 
-int RoomData::getOwnerId() {
-    return this->ownerId;
+std::string RoomData::getOwnerName() {
+    return this->owner;
 }

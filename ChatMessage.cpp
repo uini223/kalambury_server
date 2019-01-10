@@ -6,7 +6,7 @@
 
 std::string ChatMessage::toString() {
     return R"({"text": ")" + this->text +
-        ",\"roomName\": " + this->roomName + "\"}";
+            R"(","roomName": )" + "\"" + this->roomName + "\"}";
 }
 
 ChatMessage::ChatMessage(const std::string &text, std::string chatName) {

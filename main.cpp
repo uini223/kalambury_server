@@ -18,7 +18,7 @@ int main() {
 
     // testParser();
     //    new server instance (port, ipv4 address)
-    server = new Server(20000, "127.0.0.1");
+    server = new Server(20000, "0.0.0.0");
     // start running server
     server->start();
 

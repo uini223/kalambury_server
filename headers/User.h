@@ -13,9 +13,15 @@ class User: AbstractData {
     int id;
     std::string name;
 public:
+    User();
+
     User(int id, const std::string &name);
     virtual ~User();
     std::string toString() override;
+
+    int getId();
+
+    std::string getName();
 
 };
 

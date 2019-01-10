@@ -49,14 +49,14 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
              this->handleNewGame(content, fd);
         } else if (intValue(event_name) == intValue(JOIN_ROOM)) {
             this-> handleJoinRoom(content, fd);
+        } else if (intValue(event_name) == intValue(SYN_CANVAS)) {
+            this->handleCanvasSync(d, fd);
         }
     } else if(event_type == INFO) {
         if( event_name == CHAT_MSG) {
             this->handleChatMessage(content, fd);
         }
-        else if (intValue(event_name) == intValue(SYN_CANVAS)) {
-            this->handleCanvasSync(d, fd);
-        }
+
     }
 }
 
@@ -81,7 +81,7 @@ void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd) {
         if (this->dataStorage.doesRoomAlreadyExists(name)) {
             server->sendMessage(fd, this->parser.createErrorMessage("Room with given name already exits"));
         } else {
-            RoomData roomData(name, fd);
+            RoomData roomData(name, this->dataStorage.getUserName(fd));
             this->dataStorage.addRoom(roomData);
             server->sendMessageToAllExceptOne(this->parser.createInfoMessage(NEW_ROOM, roomData), fd);
         }
@@ -94,12 +94,13 @@ void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd) {
 // if yes sens victory message that and handles victory (doc over method)
 void ConnectionInputHandler::handleChatMessage(rapidjson::Value &data, int fd) {
     std::string text = data["text"].GetString();
-    std::string roomName = data["roomName"].GetString();
+    std::string roomName = data["currentRoom"].GetString();
     ChatMessage message(text, roomName);
-    server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), this->parser.createInfoMessage(CHAT_MSG, message));
-    if(this->dataStorage.isThatPassword(roomName, text)) {
-        this->handleVictory(roomName, fd);
-    }
+    server->sendMessageToExceptOne(this->dataStorage.getRoomGuests(roomName),
+            this->parser.createInfoMessage(CHAT_MSG, message), fd);
+//    if(this->dataStorage.isThatPassword(roomName, text)) {
+//        this->handleVictory(roomName, fd);
+//    }
 
 }
 
@@ -116,18 +117,22 @@ void ConnectionInputHandler::handleJoinRoom(rapidjson::Value &value, int fd) {
 // handles canvas sync msg
 // just passes this message to all room guests
 void ConnectionInputHandler::handleCanvasSync(rapidjson::Document &d, int fd) {
-    d["type"].SetString(ANSWER);
-    std::string roomName = d["roomName"].GetString();
+    d["type"].SetString(INFO);
+    rapidjson::Value& content = d["content"];
+
+    std::string roomName = content["currentRoom"].GetString();
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     d.Accept(writer);
-    server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), buffer.GetString());
+    std::string final = buffer.GetString();
+    final = START + final + STOP;
+    server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), final);
 }
 
 void ConnectionInputHandler::handleVictory(std::string roomName, int fd) {
     std::string data = this->parser.createVictoryMessage(roomName, fd);
     this->server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), data);
-    this->server->sendMessage(this->dataStorage.getRoomOwnerId(roomName), data);
+//    this->server->sendMessage(this->dataStorage.getRoomOwnerId(roomName), data);
     this->dataStorage.startNewGameForRoom(roomName, fd);
 // TODO send msg that new game started
 }
@@ -170,4 +175,16 @@ ConnectionInputHandler::~ConnectionInputHandler() = default;
 
 void ConnectionInputHandler::setServer(Server *server) {
     this->server = server;
+}
+
+void ConnectionInputHandler::handleUserQuit(int fd) {
+    std::string userName = this->dataStorage.getUserName(fd);
+    for(auto room: this->dataStorage.getRooms()) {
+        if(room.second.getOwnerName() == userName) {
+//            this->dataStorage.startNewGameForRoom()
+        }
+    }
+    this->dataStorage.removeUser(fd);
+
+
 }

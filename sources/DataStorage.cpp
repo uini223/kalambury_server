@@ -15,7 +15,7 @@
 DataStorage::DataStorage() = default;
 
 void DataStorage::addUser(User user) {
-    this->users.push_back(user);
+    this->users[user.getId()] = user;
 }
 
 void DataStorage::addRoom(RoomData data) {
@@ -28,7 +28,8 @@ std::unordered_map<std::string, RoomData> &DataStorage::getRooms() {
 
 // sprawdza czy pokoj istnieje
 bool DataStorage::doesRoomAlreadyExists(std::string roomName) {
-    return this->rooms.count(roomName) > 0;
+    printf(this->rooms.find(roomName) != this->rooms.end()? "true\n": "false\n");
+    return this->rooms.find(roomName) != this->rooms.end();
 }
 
 std::string DataStorage::toString() {
@@ -61,7 +62,7 @@ std::vector<int> &DataStorage::getRoomGuests(std::string roomName) {
 // if room doesn't exist do nothing
 void DataStorage::startNewGameForRoom(std::string roomName, int ownerId) {
     if(this->doesRoomAlreadyExists(roomName)) {
-        this->rooms[roomName].changeOwner(ownerId);
+        this->rooms[roomName].changeOwner(this->users[ownerId]);
         this->rooms[roomName].changePassword(this->rollNewPassword());
     }
 }
@@ -82,17 +83,23 @@ bool DataStorage::isThatPassword(std::string roomName, std::string text) {
     }
 }
 
-int DataStorage::getRoomOwnerId(std::string roomName) {
-    if(this->doesRoomAlreadyExists(roomName)) {
-        return this->rooms[roomName].getOwnerId();
-    } else {
-        return 0;
-    }}
-
 bool DataStorage::addGuestToRoom(std::string &roomName, int fd) {
     if(this->doesRoomAlreadyExists(roomName)) {
         return this->rooms[roomName].addGuest(fd);
     } else {
         return false;
+    }
+}
+
+std::string DataStorage::getUserName(int fd) {
+    if(this->users.find(fd) != this->users.end()) {
+        return this->users[fd].getName();
+    }
+    return "";
+}
+
+void DataStorage::removeUser(int fd) {
+    if(this->users.find(fd) != this->users.end()) {
+        this->users.erase(fd);
     }
 }

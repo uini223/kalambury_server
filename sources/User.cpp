@@ -10,7 +10,17 @@ User::User(int id, const std::string &name) : id(id), name(name) {
 }
 
 std::string User::toString() {
-    return R"({id" : ")" + std::to_string(id) + R"(", "name": ")" + name + "\"}";
+    return R"(", "name": ")" + name + "\"}";
 }
+
+int User::getId() {
+    return id;
+}
+
+std::string User::getName() {
+    return name;
+}
+
+User::User() = default;
 
 User::~User() = default;
