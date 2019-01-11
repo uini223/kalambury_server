@@ -30,6 +30,12 @@ public:
 
     bool isPassowrdCorrect(std::string);
 
+    void oldOwnerLeft();
+
+    void setOwner(const std::string &owner);
+
+    void removeGuest(int fd);
+
     std::string getOwnerName();
 
     std::vector<int>& getGuests();

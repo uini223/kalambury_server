@@ -51,6 +51,8 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
             this-> handleJoinRoom(content, fd);
         } else if (intValue(event_name) == intValue(SYN_CANVAS)) {
             this->handleCanvasSync(d, fd);
+        } else if (event_name == QUIT_ROOM) {
+            this->handleUserQuitRoom(content, fd);
         }
     } else if(event_type == INFO) {
         if( event_name == CHAT_MSG) {
@@ -180,11 +182,38 @@ void ConnectionInputHandler::setServer(Server *server) {
 void ConnectionInputHandler::handleUserQuit(int fd) {
     std::string userName = this->dataStorage.getUserName(fd);
     for(auto room: this->dataStorage.getRooms()) {
-        if(room.second.getOwnerName() == userName) {
-//            this->dataStorage.startNewGameForRoom()
+        RoomData &roomData = room.second;
+        if(roomData.getOwnerName() == userName) {
+            if(!roomData.getGuests().empty()) {
+                std::string name = this->dataStorage.getUserName(roomData.getGuests()[0]);
+                roomData.setOwner(name);
+                roomData.getGuests().erase(roomData.getGuests().begin());
+            } else {
+                this->dataStorage.removeRoom(roomData.getName());
+            }
+        } else {
+            roomData.removeGuest(fd);
         }
     }
     this->dataStorage.removeUser(fd);
 
 
+}
+
+void ConnectionInputHandler::handleUserQuitRoom(rapidjson::Value &value, int fd) {
+    std::string userName = this->dataStorage.getUserName(fd);
+    for(auto room: this->dataStorage.getRooms()) {
+        RoomData &roomData = room.second;
+        if(roomData.getOwnerName() == userName) {
+            if(!roomData.getGuests().empty()) {
+                std::string name = this->dataStorage.getUserName(roomData.getGuests()[0]);
+                roomData.setOwner(name);
+                roomData.getGuests().erase(roomData.getGuests().begin());
+            } else {
+                this->dataStorage.removeRoom(roomData.getName());
+            }
+        } else {
+            roomData.removeGuest(fd);
+        }
+    }
 }

@@ -42,6 +42,8 @@ public:
     bool addGuestToRoom(std::string &roomName, int);
 
     std::string getUserName(int fd);
+
+    void removeRoom(std::string roomName);
 };
 
 

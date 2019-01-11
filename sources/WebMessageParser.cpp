@@ -55,7 +55,8 @@ WebMessageParser::WebMessageParser() {
 }
 
 std::string WebMessageParser::createErrorMessage(std::string errorMessage) {
-    return this->createMessageHeader(INFO,  ERROR) + this->createMessageContent("{\"message\": " + errorMessage + "}");
+    return this->createMessageHeader(INFO,  ERROR) + this->createMessageContent(R"({"message": ")" + errorMessage
+    + "\"}");
 }
 
 std::string WebMessageParser::createMessageHeader(std::string eventType, std::string eventName) {

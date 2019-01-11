@@ -58,6 +58,8 @@ public:
     void handleJoinRoom(rapidjson::Value &value, int fd);
 
     void handleUserQuit(int fd);
+
+    void handleUserQuitRoom(rapidjson::Value &value, int fd);
 };
 
 #include "Server.h"
@@ -69,5 +71,6 @@ public:
 #define NEW_GAME "NEW_GAME"
 #define SYN_CANVAS "CANVAS"
 #define JOIN_ROOM "JOIN_ROOM"
+#define QUIT_ROOM "QUIT_ROOM"
 
 #endif //KALAMBURY_SERVER_CONNECTIONINPUTHANDLER_H

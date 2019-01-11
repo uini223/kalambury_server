@@ -62,6 +62,7 @@ void Server::start() {
                     printf("Client with fd=%d disconnected \n", fd);
                     clientFds.erase(fd);
                     close(fd);
+                    this->connectionInputHandler.handleUserQuit(fd);
                     continue;
                 } else {
                     printf("%zd bytes read.\n", bytes_read);

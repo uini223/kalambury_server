@@ -103,3 +103,9 @@ void DataStorage::removeUser(int fd) {
         this->users.erase(fd);
     }
 }
+
+void DataStorage::removeRoom(std::string roomName) {
+    if(this->rooms.find(roomName) != this->rooms.end()){
+        this->rooms.erase(roomName);
+    }
+}
