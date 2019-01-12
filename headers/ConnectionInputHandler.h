@@ -69,7 +69,7 @@ public:
 #define REQUEST "REQUEST"
 #define NEW_USER "NEW_USER"
 #define NEW_GAME "NEW_GAME"
-#define SYN_CANVAS "CANVAS"
+#define SYN_CANVAS "SYN_CANVAS"
 #define JOIN_ROOM "JOIN_ROOM"
 #define QUIT_ROOM "QUIT_ROOM"
 
