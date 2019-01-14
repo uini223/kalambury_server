@@ -42,7 +42,6 @@ void Server::enterListenMode() {
 
 void Server::start() {
     this->enterListenMode();
-    this->addEvent(createEvent(EPOLLIN, 0));
     int event_count = 0;
     char read_buff[255];
     while (true) {
@@ -50,11 +49,6 @@ void Server::start() {
         for (int i = 0; i < event_count; i++) {
             if (events[i].data.fd == this->server_fd) {
                 this->acceptNewConnection();
-            } else if (events[i].data.fd == 0) {
-                ssize_t bytes_read = read(0, read_buff, 255);
-                for (int client_fd : this->clientFds) {
-                    this->sendMessage(client_fd, read_buff, (size_t)bytes_read);
-                }
             } else {
                 auto fd = events[i].data.fd;
                 ssize_t bytes_read = read(fd, read_buff, 255);

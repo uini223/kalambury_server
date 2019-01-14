@@ -8,6 +8,9 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <fstream>
+#include <time.h>
+#include <stdlib.h>
 #include "User.h"
 #include "RoomData.h"
 
@@ -15,6 +18,7 @@ class DataStorage {
     std::unordered_map<int, User> users;
     std::unordered_map<std::string, RoomData> rooms;
     std::vector<int> emptyVector;
+    std::vector<std::string> passwords;
 
 public:
     DataStorage();
@@ -25,7 +29,7 @@ public:
 
     void addRoom(RoomData roomData);
 
-    std::unordered_map<std::string, RoomData> &getRooms();
+    std::unordered_map<std::string, RoomData> *getRooms();
 
     std::string toString();
 

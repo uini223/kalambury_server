@@ -6,6 +6,8 @@
 #include "../headers/WebMessageParser.h"
 #include "../ChatMessage.h"
 
+#define NEW_OWNER "NEW_OWNER"
+
 // this handles straight data from socket (bufor pośredni)
 // concatenate inputs until it finds 'STOP' then it parse message
 // and passess it to main function for event handling
@@ -83,9 +85,11 @@ void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd) {
         if (this->dataStorage.doesRoomAlreadyExists(name)) {
             server->sendMessage(fd, this->parser.createErrorMessage("Room with given name already exits"));
         } else {
-            RoomData roomData(name, this->dataStorage.getUserName(fd));
+            RoomData roomData(name, this->dataStorage.getUserName(fd), fd, this->dataStorage.rollNewPassword());
             this->dataStorage.addRoom(roomData);
+            this->dataStorage.startNewGameForRoom(name, fd);
             server->sendMessageToAllExceptOne(this->parser.createInfoMessage(NEW_ROOM, roomData), fd);
+            server->sendMessage(fd, this->parser.createInfoMessage(NEW_GAME, roomData));
         }
     }
 }
@@ -153,7 +157,7 @@ void ConnectionInputHandler::handleNewGame(rapidjson::Value &d, int fd) {
 void ConnectionInputHandler::sendCurrentRoomsData(int fd) {
     std::string all = "[";
     int i = 0;
-    for (const auto &entry: this->dataStorage.getRooms()) {
+    for (const auto &entry: *this->dataStorage.getRooms()) {
         if(i != 0) {
             all += ',';
         }
@@ -180,40 +184,58 @@ void ConnectionInputHandler::setServer(Server *server) {
 }
 
 void ConnectionInputHandler::handleUserQuit(int fd) {
+    // sprwadzamy czy byl ownerem pokoju
+    // jeżeli był ownerem i nie ma gości -> zamknij pokój
+    // jeżeli był ownerem i są goście -> wybierz nowego ownera (zacznij nową gre)
+    // sprawdzamy czy jest na liście gości, jeżeli tak to go usuwamy
+    // usuwamy go z listy userów
     std::string userName = this->dataStorage.getUserName(fd);
-    for(auto room: this->dataStorage.getRooms()) {
+    for(auto room: *this->dataStorage.getRooms()) {
         RoomData &roomData = room.second;
-        if(roomData.getOwnerName() == userName) {
-            if(!roomData.getGuests().empty()) {
-                std::string name = this->dataStorage.getUserName(roomData.getGuests()[0]);
-                roomData.setOwner(name);
-                roomData.getGuests().erase(roomData.getGuests().begin());
+        if(room.second.getOwnerName() == userName) {
+            if(!room.second.getGuests().empty()) {
+                int newOwner = room.second.getGuests()[0];
+                std::string name = this->dataStorage.getUserName(newOwner);
+                room.second.setOwner(name);
+                room.second.setOwnerId(newOwner);
+                room.second.getGuests().erase(room.second.getGuests().begin());
+                this->sendNewGameInfo(room.second, newOwner);
             } else {
-                this->dataStorage.removeRoom(roomData.getName());
+                this->dataStorage.removeRoom(room.second.getName());
+                break;
             }
         } else {
-            roomData.removeGuest(fd);
+            room.second.removeGuest(fd);
         }
     }
     this->dataStorage.removeUser(fd);
-
+    this->fds_with_messages.erase(fd);
 
 }
 
 void ConnectionInputHandler::handleUserQuitRoom(rapidjson::Value &value, int fd) {
     std::string userName = this->dataStorage.getUserName(fd);
-    for(auto room: this->dataStorage.getRooms()) {
+    for(auto &room: *this->dataStorage.getRooms()) {
         RoomData &roomData = room.second;
-        if(roomData.getOwnerName() == userName) {
-            if(!roomData.getGuests().empty()) {
-                std::string name = this->dataStorage.getUserName(roomData.getGuests()[0]);
-                roomData.setOwner(name);
-                roomData.getGuests().erase(roomData.getGuests().begin());
+        if(room.second.getOwnerName() == userName) {
+            if(!room.second.getGuests().empty()) {
+                int newOwner = room.second.getGuests()[0];
+                std::string name = this->dataStorage.getUserName(newOwner);
+                room.second.setOwnerId(newOwner);
+                room.second.setOwner(name);
+                room.second.getGuests().erase(room.second.getGuests().begin());
+                this->sendNewGameInfo(room.second, fd);
             } else {
-                this->dataStorage.removeRoom(roomData.getName());
+                this->dataStorage.removeRoom(room.second.getName());
+                break;
             }
         } else {
-            roomData.removeGuest(fd);
+            room.second.removeGuest(fd);
         }
     }
+}
+
+void ConnectionInputHandler::sendNewGameInfo(RoomData &data, int fd) {
+    this->server->sendMessageTo(data.getGuests(), this->parser.createInfoMessage(NEW_GAME,data));
+    this->server->sendMessage(data.getOwnerId(),this->parser.createInfoMessage(NEW_OWNER, data));
 }

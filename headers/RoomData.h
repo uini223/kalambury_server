@@ -16,11 +16,13 @@
 class RoomData: public AbstractData {
     std::string name;
     std::string owner;
+    int ownerId;
     std::vector<int> guests;
     std::string currentPassword;
 public:
     RoomData() {}
-    RoomData(std::string name, std::string owner) : name(std::move(name)), owner(owner) {};
+    RoomData(std::string name, std::string owner, int ownerId, std::string currentPassword)
+            : name(std::move(name)), owner(owner), ownerId(ownerId), currentPassword(currentPassword) {};
 
     void changeOwner(User&);
 
@@ -37,6 +39,10 @@ public:
     void removeGuest(int fd);
 
     std::string getOwnerName();
+
+    void setOwnerId(int);
+
+    int getOwnerId();
 
     std::vector<int>& getGuests();
 

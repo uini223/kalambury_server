@@ -60,6 +60,8 @@ public:
     void handleUserQuit(int fd);
 
     void handleUserQuitRoom(rapidjson::Value &value, int fd);
+
+    void sendNewGameInfo(RoomData &data, int i);
 };
 
 #include "Server.h"

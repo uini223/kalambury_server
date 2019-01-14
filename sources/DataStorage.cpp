@@ -1,18 +1,18 @@
-#include <utility>
-
-#include <utility>
-
-#include <utility>
-
-#include <utility>
-
 //
 // Created by ramon on 05.01.19.
 //
 
 #include "../headers/DataStorage.h"
 
-DataStorage::DataStorage() = default;
+DataStorage::DataStorage() {
+    srand (time(NULL));
+    std::ifstream inFile("../passwords.txt");
+    while(!inFile.eof()) {
+        std::string password;
+        getline(inFile, password, ',');
+        this->passwords.push_back(password);
+    }
+}
 
 void DataStorage::addUser(User user) {
     this->users[user.getId()] = user;
@@ -22,8 +22,8 @@ void DataStorage::addRoom(RoomData data) {
     this->rooms[data.getName()] = data;
 }
 
-std::unordered_map<std::string, RoomData> &DataStorage::getRooms() {
-    return this->rooms;
+std::unordered_map<std::string, RoomData> *DataStorage::getRooms() {
+    return &this->rooms;
 }
 
 // sprawdza czy pokoj istnieje
@@ -70,7 +70,8 @@ void DataStorage::startNewGameForRoom(std::string roomName, int ownerId) {
 // TODO read names from file and rool one, we don't want to hardcoded passwords xD
 // maybe this need old password as parameter so it don't choose same password again
 std::string DataStorage::rollNewPassword() {
-    return "Komputer";
+    unsigned int a = rand()%passwords.size();
+    return passwords[a];
 }
 
 // checks if given text (message on chat) is correct
