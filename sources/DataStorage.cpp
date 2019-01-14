@@ -12,6 +12,7 @@ DataStorage::DataStorage() {
         getline(inFile, password, ',');
         this->passwords.push_back(password);
     }
+    inFile.close();
 }
 
 void DataStorage::addUser(User user) {
