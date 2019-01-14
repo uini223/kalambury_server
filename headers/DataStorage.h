@@ -48,6 +48,10 @@ public:
     std::string getUserName(int fd);
 
     void removeRoom(std::string roomName);
+
+    int getRoomOwnerId(std::string&);
+
+    RoomData &getRoom(std::string roomName);
 };
 
 

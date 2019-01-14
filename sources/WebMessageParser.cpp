@@ -85,8 +85,8 @@ std::string WebMessageParser::createMessageContent(std::string content) {
 }
 
 std::string WebMessageParser::createVictoryMessage(std::string &roomName, int fd) {
-    return  "{\"roomName\": " + roomName +
-    ",\"winnerId\": " + std::to_string(fd) + "}";
+    return this->createMessageHeader(INFO, "VICTORY") + R"("roomName": ")" + roomName +
+            R"(","winnerId": )" + "\"" + std::to_string(fd) + "\"}" + STOP;
 
 }
 

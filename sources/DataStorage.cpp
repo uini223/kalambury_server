@@ -111,3 +111,11 @@ void DataStorage::removeRoom(std::string roomName) {
         this->rooms.erase(roomName);
     }
 }
+
+int DataStorage::getRoomOwnerId(std::string &roomName) {
+    return this->rooms[roomName].getOwnerId();
+}
+
+RoomData &DataStorage::getRoom(std::string roomName) {
+    return  this->rooms[roomName];
+}

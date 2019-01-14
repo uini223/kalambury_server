@@ -33,17 +33,18 @@ std::vector<int>& RoomData::getGuests() {
 
 //changes owner removes new one from guest and pushes old one to guest
 void RoomData::changeOwner(User &user) {
-    std::string oldOwner = this->owner;
+    int oldOwnerId = this->ownerId;
+    this->ownerId = user.getId();
     this->owner = user.getName();
-    this->guests.push_back(user.getId());
+    this->guests.push_back(oldOwnerId);
     this->removeGuest(user.getId());
 }
 
 //checks if given text (message on chat) is correct
 bool RoomData::isPassowrdCorrect(std::string text) {
-    std::transform(text.begin(), text.end(), text.begin(), ::tolower);
-    std::transform(this->currentPassword.begin(), this->currentPassword.end(), this->currentPassword.begin(),
-            ::tolower);
+//    std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+//    std::transform(this->currentPassword.begin(), this->currentPassword.end(), this->currentPassword.begin(),
+//            ::tolower);
     return this->currentPassword == text;
 }
 
