@@ -157,3 +157,9 @@ void Server::sendMessageToExceptOne(std::vector<int> &fds, std::string data, int
         }
     }
 }
+
+void Server::sendMessageToAll(std::string message) {
+    for (auto clientFd: this->clientFds) {
+        this->sendMessage(clientFd, message);
+    }
+}

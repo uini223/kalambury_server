@@ -206,6 +206,7 @@ void ConnectionInputHandler::handleUserQuit(int fd) {
                 this->sendNewGameInfo(room.second, newOwner);
             } else {
                 this->dataStorage.removeRoom(room.second.getName());
+                this->server->sendMessageToAll(this->parser.createUserQuitMessage(roomData.getName()));
                 break;
             }
         } else {
@@ -231,6 +232,7 @@ void ConnectionInputHandler::handleUserQuitRoom(rapidjson::Value &value, int fd)
                 this->sendNewGameInfo(room.second, fd);
             } else {
                 this->dataStorage.removeRoom(room.second.getName());
+                this->server->sendMessageToAll(this->parser.createUserQuitMessage(roomData.getName()));
                 break;
             }
         } else {

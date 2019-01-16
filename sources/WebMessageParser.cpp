@@ -23,6 +23,8 @@
 #include "../libs/rapidjson/stringbuffer.h"
 #include "../libs/rapidjson/writer.h"
 
+#define ROOM_DELETED "ROOM_DELETED"
+
 // TODO this might return packageStructure to discuse
 std::string WebMessageParser::parse(std::string data) {
     PackageStucture packageStucture;
@@ -92,4 +94,9 @@ std::string WebMessageParser::createVictoryMessage(std::string &roomName, int fd
 
 std::string WebMessageParser::createOKMessage() {
     return this->createMessageHeader(INFO,  OK) + this->createMessageContent("");
+}
+
+std::string WebMessageParser::createUserQuitMessage(std::string data) {
+    std::string message = R"({"roomName": ")" + data + "\"}";
+    return this->createMessageHeader(INFO, ROOM_DELETED) + this->createMessageContent(message);
 }

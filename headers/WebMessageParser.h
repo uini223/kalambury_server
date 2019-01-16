@@ -43,6 +43,8 @@ public:
 
     std::string createOKMessage();
 
+    std::string createUserQuitMessage(std::string data);
+
 private:
     std::string createMessageHeader(std::string eventType, std::string eventName);
 

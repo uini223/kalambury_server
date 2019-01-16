@@ -39,6 +39,7 @@ public:
     void sendMessage(int fd, std::string data);
     void sendMessageToAllExceptOne(std::string, int);
     void sendMessageTo(std::vector<int>, std::string);
+    void sendMessageToAll(std::string);
 
     void sendMessageToExceptOne(std::vector<int> &fds, std::string data, int fd);
 
