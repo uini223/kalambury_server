@@ -13,7 +13,7 @@ DataStorage::DataStorage() {
     //     this->passwords.push_back(password);
     // }
     // inFile.close();
-    this->passwords.push_back("dupa");
+    this->passwords.push_back("test");
 }
 
 void DataStorage::addUser(User user) {
