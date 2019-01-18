@@ -39,7 +39,7 @@ public:
 
     std::string createAnswerMessage(std::string name, std::string &);
 
-    std::string createVictoryMessage(std::string &roomName, int fd);
+    std::string createVictoryMessage(std::string &roomName, std::string fd);
 
     std::string createOKMessage();
 

@@ -86,10 +86,9 @@ std::string WebMessageParser::createMessageContent(std::string content) {
     return "\"content\": " + content + "}" + STOP;
 }
 
-std::string WebMessageParser::createVictoryMessage(std::string &roomName, int fd) {
+std::string WebMessageParser::createVictoryMessage(std::string &roomName, std::string fd) {
     return this->createMessageHeader(INFO, "VICTORY") + R"("roomName": ")" + roomName +
-            R"(","winnerId": )" + "\"" + std::to_string(fd) + "\"}" + STOP;
-
+            R"(","winnerId": )" + "\"" + fd + "\"}" + STOP;
 }
 
 std::string WebMessageParser::createOKMessage() {

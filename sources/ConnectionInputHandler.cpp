@@ -101,7 +101,7 @@ void ConnectionInputHandler::handleNewRoom(rapidjson::Value &data, int fd) {
 void ConnectionInputHandler::handleChatMessage(rapidjson::Value &data, int fd) {
     std::string text = data["text"].GetString();
     std::string roomName = data["currentRoom"].GetString();
-    ChatMessage message(text, roomName);
+    ChatMessage message(text, roomName, this->dataStorage.getUserName(fd));
     server->sendMessageToExceptOne(this->dataStorage.getRoomGuests(roomName),
                                    this->parser.createInfoMessage(CHAT_MSG, message), fd);
     if (this->dataStorage.isThatPassword(roomName, text)) {
@@ -136,7 +136,7 @@ void ConnectionInputHandler::handleCanvasSync(rapidjson::Document &d, int fd) {
 }
 
 void ConnectionInputHandler::handleVictory(std::string roomName, int fd) {
-    std::string data = this->parser.createVictoryMessage(roomName, fd);
+    std::string data = this->parser.createVictoryMessage(roomName, this->dataStorage.getUserName(fd));
     this->server->sendMessageTo(this->dataStorage.getRoomGuests(roomName), data);
     this->server->sendMessage(this->dataStorage.getRoomOwnerId(roomName), data);
 //    this->server->sendMessage(this->dataStorage.getRoomOwnerId(roomName), data);
@@ -205,8 +205,8 @@ void ConnectionInputHandler::handleUserQuit(int fd) {
                 room.second.getGuests().erase(room.second.getGuests().begin());
                 this->sendNewGameInfo(room.second, newOwner);
             } else {
-                this->dataStorage.removeRoom(room.second.getName());
                 this->server->sendMessageToAll(this->parser.createUserQuitMessage(roomData.getName()));
+                this->dataStorage.removeRoom(room.second.getName());
                 break;
             }
         } else {
@@ -231,8 +231,8 @@ void ConnectionInputHandler::handleUserQuitRoom(rapidjson::Value &value, int fd)
                 room.second.getGuests().erase(room.second.getGuests().begin());
                 this->sendNewGameInfo(room.second, fd);
             } else {
-                this->dataStorage.removeRoom(room.second.getName());
                 this->server->sendMessageToAll(this->parser.createUserQuitMessage(roomData.getName()));
+                this->dataStorage.removeRoom(room.second.getName());
                 break;
             }
         } else {
@@ -244,4 +244,8 @@ void ConnectionInputHandler::handleUserQuitRoom(rapidjson::Value &value, int fd)
 void ConnectionInputHandler::sendNewGameInfo(RoomData &data, int fd) {
     this->server->sendMessageTo(data.getGuests(), this->parser.createInfoMessage(NEW_GAME, data));
     this->server->sendMessage(data.getOwnerId(), this->parser.createInfoMessage(NEW_OWNER, data));
+}
+
+void ConnectionInputHandler::clearDataStorage() {
+    this->dataStorage.clearData();
 }

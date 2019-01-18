@@ -119,3 +119,11 @@ int DataStorage::getRoomOwnerId(std::string &roomName) {
 RoomData &DataStorage::getRoom(std::string roomName) {
     return  this->rooms[roomName];
 }
+
+void DataStorage::clearData() {
+    std::unordered_map<std::string, RoomData> roomsEmpty;
+    std::unordered_map<int, User> usersEmpty;
+
+    this->rooms.swap(roomsEmpty);
+    this->users.swap(usersEmpty);
+}

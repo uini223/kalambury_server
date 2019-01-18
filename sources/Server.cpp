@@ -163,3 +163,7 @@ void Server::sendMessageToAll(std::string message) {
         this->sendMessage(clientFd, message);
     }
 }
+
+void Server::clearDataStorage() {
+    this->connectionInputHandler.clearDataStorage();
+}

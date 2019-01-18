@@ -5,7 +5,7 @@
 #include "../headers/Server.h"
 #include "../headers/WebMessageParser.h"
 
-Server *server;
+Server *gserver;
 
 void ctrl_c(int);
 
@@ -31,14 +31,15 @@ int main() {
     int serverPort = d["port"].GetInt();
 
     //    new server instance (port, ipv4 address)
-    server = new Server((uint16_t)(serverPort), serverAddress);
+    Server server((uint16_t)(serverPort), serverAddress);
     // start running server
-    server->start();
+    gserver = &server;
+    server.start();
 
     return 0;
 }
 
 void ctrl_c(int) {
-    delete server;
+    (*gserver).clearDataStorage();
     exit(0);
 }

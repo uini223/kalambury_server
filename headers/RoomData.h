@@ -49,7 +49,7 @@ public:
     std::string toString() override;
 
     std::string getName() {
-        return name;
+        return this->name;
     }
 };
 #endif //KALAMBURY_SERVER_ROOMDATA_H

@@ -42,6 +42,7 @@ public:
     void sendMessageToAll(std::string);
 
     void sendMessageToExceptOne(std::vector<int> &fds, std::string data, int fd);
+    void clearDataStorage();
 
 private:
     void createServerSocket();

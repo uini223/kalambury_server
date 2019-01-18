@@ -11,8 +11,9 @@
 class ChatMessage: public AbstractData {
     std::string text;
     std::string roomName;
+    std::string sender;
 public:
-    explicit ChatMessage(const std::string &text, std::string chatName);
+    explicit ChatMessage(const std::string &text, std::string chatName, std::string sender);
 
     std::string toString() override;
 };

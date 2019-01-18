@@ -52,6 +52,8 @@ public:
     int getRoomOwnerId(std::string&);
 
     RoomData &getRoom(std::string roomName);
+
+    void clearData();
 };
 
 
