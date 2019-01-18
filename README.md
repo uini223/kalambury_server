@@ -7,6 +7,8 @@ cmake
 ## To start Server
 
 ```
-cmake .
-./build/kalambury_server
+mkdir build
+cd build
+cmake .. && make
+./kalambury_server
 ```
