@@ -6,13 +6,14 @@
 
 DataStorage::DataStorage() {
     srand (time(NULL));
-    std::ifstream inFile("../passwords.txt");
-    while(!inFile.eof()) {
-        std::string password;
-        getline(inFile, password, ',');
-        this->passwords.push_back(password);
-    }
-    inFile.close();
+    // std::ifstream inFile("../passwords.txt");
+    // while(!inFile.eof()) {
+    //     std::string password;
+    //     getline(inFile, password, ',');
+    //     this->passwords.push_back(password);
+    // }
+    // inFile.close();
+    this->passwords.push_back("dupa");
 }
 
 void DataStorage::addUser(User user) {
