@@ -112,7 +112,9 @@ void ConnectionInputHandler::handleChatMessage(rapidjson::Value &data, int fd) {
 
 void ConnectionInputHandler::handleJoinRoom(rapidjson::Value &value, int fd) {
     std::string roomName = value["roomName"].GetString();
+    RoomData &roomData = this->dataStorage.getRoom(roomName);
     if (this->dataStorage.addGuestToRoom(roomName, fd)) {
+        this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE,roomData));
         this->server->sendMessage(fd, this->parser.createOKMessage());
     } else {
         this->server->sendMessage(fd, this->parser.createErrorMessage("Room too crowded"));
@@ -203,6 +205,7 @@ void ConnectionInputHandler::handleUserQuit(int fd) {
                 room.second.setOwner(name);
                 room.second.setOwnerId(newOwner);
                 room.second.getGuests().erase(room.second.getGuests().begin());
+                this->server->sendMessageToAll(this->parser.createUserQuitMessage(roomData.getName()));
                 this->sendNewGameInfo(room.second, newOwner);
             } else {
                 this->server->sendMessageToAll(this->parser.createUserQuitMessage(roomData.getName()));
@@ -210,6 +213,7 @@ void ConnectionInputHandler::handleUserQuit(int fd) {
                 break;
             }
         } else {
+            this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE,roomData));
             room.second.removeGuest(fd);
         }
     }

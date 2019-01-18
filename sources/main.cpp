@@ -31,7 +31,7 @@ int main() {
     // int serverPort = d["port"].GetInt();
 
     //    new server instance (port, ipv4 address)
-    Server server((uint16_t)(serverPort), serverAddress);
+    Server server((uint16_t)(20000), "127.0.0.1");
     // start running server
     gserver = &server;
     server.start();
