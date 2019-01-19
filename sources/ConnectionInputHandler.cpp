@@ -4,7 +4,7 @@
 
 #include "../headers/ConnectionInputHandler.h"
 #include "../headers/WebMessageParser.h"
-#include "../ChatMessage.h"
+#include "../headers/ChatMessage.h"
 
 #define NEW_OWNER "NEW_OWNER"
 #define GUESTS_UPDATE "GUESTS_UPDATE"

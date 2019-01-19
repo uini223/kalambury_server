@@ -57,7 +57,7 @@ void RoomData::setOwner(const std::string &owner) {
 }
 
 void RoomData::removeGuest(int fd) {
-    for(int i=0; i<this->guests.size(); i++) {
+    for(unsigned int i=0; i<this->guests.size(); i++) {
         if(this->guests[i] == fd) {
             this->guests.erase(this->guests.begin() + i);
             break;

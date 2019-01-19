@@ -6,7 +6,7 @@
 #define KALAMBURY_SERVER_CHATMESSAGE_H
 
 
-#include "headers/AbstractData.h"
+#include "AbstractData.h"
 
 class ChatMessage: public AbstractData {
     std::string text;

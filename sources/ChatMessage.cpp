@@ -4,7 +4,7 @@
 // Created by Emil on 1/8/19.
 //
 
-#include "ChatMessage.h"
+#include "../headers/ChatMessage.h"
 
 std::string ChatMessage::toString() {
     return R"({"text": ")" + this->text +
