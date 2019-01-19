@@ -54,6 +54,8 @@ public:
     RoomData &getRoom(std::string roomName);
 
     void clearData();
+
+    std::unordered_map<int, User> &getUsers();
 };
 
 

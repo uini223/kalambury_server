@@ -128,3 +128,7 @@ void DataStorage::clearData() {
     this->rooms.swap(roomsEmpty);
     this->users.swap(usersEmpty);
 }
+
+std::unordered_map<int, User> &DataStorage::getUsers() {
+    return users;
+}

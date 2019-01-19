@@ -8,6 +8,7 @@
 
 #define NEW_OWNER "NEW_OWNER"
 #define GUESTS_UPDATE "GUESTS_UPDATE"
+#define GET_NICK_LIST "GET_NICK_LIST"
 
 // this handles straight data from socket (bufor pośredni)
 // concatenate inputs until it finds 'STOP' then it parse message
@@ -48,6 +49,8 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
             this->handleNewRoom(content, fd);
         } else if (intValue(event_name) == intValue(GET_ROOM_LIST)) {
             this->sendCurrentRoomsData(fd);
+        } else if (intValue(event_name) == intValue(GET_NICK_LIST)) {
+            this->sendCurrentUserData(fd);
         } else if (intValue(event_name) == intValue(NEW_GAME)) {
             this->handleNewGame(content, fd);
         } else if (intValue(event_name) == intValue(JOIN_ROOM)) {
@@ -144,10 +147,6 @@ void ConnectionInputHandler::handleVictory(std::string roomName, int fd) {
     this->server->sendMessage(this->dataStorage.getRoomOwnerId(roomName), data);
 //    this->server->sendMessage(this->dataStorage.getRoomOwnerId(roomName), data);
     this->dataStorage.startNewGameForRoom(roomName, fd);
-    RoomData &roomData = this->dataStorage.getRoom(roomName);
-    this->server->sendMessageTo(this->dataStorage.getRoomGuests(roomName),
-                                this->parser.createInfoMessage(NEW_GAME, roomData));
-    this->server->sendMessage(roomData.getOwnerId(), this->parser.createInfoMessage(NEW_GAME, roomData));
 }
 
 // when user creates new room should send new game request to initiate new game
@@ -255,4 +254,14 @@ void ConnectionInputHandler::sendNewGameInfo(RoomData &data, int fd) {
 
 void ConnectionInputHandler::clearDataStorage() {
     this->dataStorage.clearData();
+}
+
+void ConnectionInputHandler::sendCurrentUserData(int fd) {
+    auto users = this->dataStorage.getUsers();
+    std::string list = "{\"nickList\": [";
+    for(auto &user: users) {
+        list += "\"" + user.second.getName() + "\"";
+    }
+    list += "]}";
+    this->server->sendMessage(fd, this->parser.createAnswerMessage(GET_NICK_LIST, list));
 }

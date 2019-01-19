@@ -64,6 +64,8 @@ public:
     void sendNewGameInfo(RoomData &data, int i);
 
     void clearDataStorage();
+
+    void sendCurrentUserData(int fd);
 };
 
 #include "Server.h"

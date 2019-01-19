@@ -10,7 +10,7 @@ User::User(int id, const std::string &name) : id(id), name(name) {
 }
 
 std::string User::toString() {
-    return R"(", "name": ")" + name + "\"}";
+    return R"({"name": ")" + name + "\"}";
 }
 
 int User::getId() {
