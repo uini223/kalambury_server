@@ -7,6 +7,7 @@
 #include "../ChatMessage.h"
 
 #define NEW_OWNER "NEW_OWNER"
+#define GUESTS_UPDATE "GUESTS_UPDATE"
 
 // this handles straight data from socket (bufor pośredni)
 // concatenate inputs until it finds 'STOP' then it parse message
@@ -205,10 +206,10 @@ void ConnectionInputHandler::handleUserQuit(int fd) {
                 room.second.setOwner(name);
                 room.second.setOwnerId(newOwner);
                 room.second.getGuests().erase(room.second.getGuests().begin());
-                this->server->sendMessageToAll(this->parser.createUserQuitMessage(roomData.getName()));
+                this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE,roomData));
                 this->sendNewGameInfo(room.second, newOwner);
             } else {
-                this->server->sendMessageToAll(this->parser.createUserQuitMessage(roomData.getName()));
+                this->server->sendMessageToAll(this->parser.createRoomDeletedMessage(roomData.getName()));
                 this->dataStorage.removeRoom(room.second.getName());
                 break;
             }
@@ -233,14 +234,16 @@ void ConnectionInputHandler::handleUserQuitRoom(rapidjson::Value &value, int fd)
                 room.second.setOwnerId(newOwner);
                 room.second.setOwner(name);
                 room.second.getGuests().erase(room.second.getGuests().begin());
+                this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE, roomData));
                 this->sendNewGameInfo(room.second, fd);
             } else {
-                this->server->sendMessageToAll(this->parser.createUserQuitMessage(roomData.getName()));
+                this->server->sendMessageToAll(this->parser.createRoomDeletedMessage(roomData.getName()));
                 this->dataStorage.removeRoom(room.second.getName());
                 break;
             }
         } else {
             room.second.removeGuest(fd);
+            this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE, roomData));
         }
     }
 }

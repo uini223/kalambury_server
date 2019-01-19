@@ -11,7 +11,6 @@
 
 // TODO this might return packageStructure to discuse
 std::string WebMessageParser::parse(std::string data) {
-    PackageStucture packageStucture;
     this->eraseStart(data);
     this->eraseStop(data);
     return data;
@@ -79,7 +78,7 @@ std::string WebMessageParser::createOKMessage() {
     return this->createMessageHeader(INFO,  OK) + this->createMessageContent("");
 }
 
-std::string WebMessageParser::createUserQuitMessage(std::string data) {
+std::string WebMessageParser::createRoomDeletedMessage(std::string data) {
     std::string message = R"({"roomName": ")" + data + "\"}";
     return this->createMessageHeader(INFO, ROOM_DELETED) + this->createMessageContent(message);
 }

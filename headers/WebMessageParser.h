@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 #include <random>
-#include "PackageStucture.h"
 #include "../libs/rapidjson/pointer.h"
 #include "AbstractData.h"
 
@@ -43,7 +42,7 @@ public:
 
     std::string createOKMessage();
 
-    std::string createUserQuitMessage(std::string data);
+    std::string createRoomDeletedMessage(std::string data);
 
 private:
     std::string createMessageHeader(std::string eventType, std::string eventName);
