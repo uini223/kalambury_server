@@ -35,8 +35,6 @@ public:
 
     void handleEvent(int fd, std::string);
 
-    constexpr unsigned int str2int(const char* str, int h);
-
     void handleNewUser(rapidjson::Value &, int);
 
     void handleNewRoom(rapidjson::Value &data, int fd);
@@ -46,8 +44,6 @@ public:
     void handleCanvasSync(rapidjson::Document &, int fd);
 
     void sendCurrentRoomsData(int fd);
-
-    size_t intValue(const std::string &value);
 
     void setServer(Server *server);
 

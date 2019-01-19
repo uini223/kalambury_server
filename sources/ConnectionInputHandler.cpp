@@ -9,6 +9,7 @@
 #define NEW_OWNER "NEW_OWNER"
 #define GUESTS_UPDATE "GUESTS_UPDATE"
 #define GET_NICK_LIST "GET_NICK_LIST"
+#define CHECK_CONNECTION "CHECK_CONNECTION"
 
 // this handles straight data from socket (bufor pośredni)
 // concatenate inputs until it finds 'STOP' then it parse message
@@ -42,23 +43,26 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
     auto event_type = std::string(type.GetString());
 
     if (event_type == ANSWER) {
-    } else if (intValue(event_type) == intValue(REQUEST)) {
-        if (intValue(event_name) == intValue(NEW_USER)) {
+    } else if (event_type == REQUEST) {
+        if (event_name == NEW_USER) {
             this->handleNewUser(content, fd);
-        } else if (intValue(event_name) == intValue(NEW_ROOM)) {
+        } else if (event_name == NEW_ROOM) {
             this->handleNewRoom(content, fd);
-        } else if (intValue(event_name) == intValue(GET_ROOM_LIST)) {
+        } else if (event_name == GET_ROOM_LIST) {
             this->sendCurrentRoomsData(fd);
-        } else if (intValue(event_name) == intValue(GET_NICK_LIST)) {
+        } else if (event_name == GET_NICK_LIST) {
             this->sendCurrentUserData(fd);
-        } else if (intValue(event_name) == intValue(NEW_GAME)) {
+        } else if (event_name == NEW_GAME) {
             this->handleNewGame(content, fd);
-        } else if (intValue(event_name) == intValue(JOIN_ROOM)) {
+        } else if (event_name == JOIN_ROOM) {
             this->handleJoinRoom(content, fd);
-        } else if (intValue(event_name) == intValue(SYN_CANVAS)) {
+        } else if (event_name == SYN_CANVAS) {
             this->handleCanvasSync(d, fd);
         } else if (event_name == QUIT_ROOM) {
             this->handleUserQuitRoom(content, fd);
+        } else if (event_name == CHECK_CONNECTION) {
+            std::string empty;
+            this->server->sendMessage(fd, this->parser.createAnswerMessage(CHECK_CONNECTION, empty));
         }
     } else if (event_type == INFO) {
         if (event_name == CHAT_MSG) {
@@ -66,11 +70,6 @@ void ConnectionInputHandler::handleEvent(int fd, std::string message) {
         }
 
     }
-}
-
-// sorki nie wiedzialem tego wcześniej niech jeszcze zostanie
-constexpr unsigned int ConnectionInputHandler::str2int(const char *str, int h) {
-    return !str[h] ? 5381 : (str2int(str, h + 1) * 33) ^ str[h];
 }
 
 // handles new user
@@ -174,11 +173,6 @@ void ConnectionInputHandler::sendCurrentRoomsData(int fd) {
     all += "]";
     server->sendMessage(fd, this->parser.createAnswerMessage(GET_ROOM_LIST, all));
 
-}
-
-// hash value of string i'm not sure if we need this but sometimes string with '==' does not work
-size_t ConnectionInputHandler::intValue(const std::string &value) {
-    return std::hash<std::string>{}(value);
 }
 
 ConnectionInputHandler::ConnectionInputHandler() = default;

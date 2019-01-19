@@ -118,7 +118,13 @@ epoll_event Server::createEvent(uint32_t eventType, int fd) {
 
 void Server::sendMessage(int fd, char *data, size_t size) {
     auto res = write(fd, data, size);
-    printf("Sent %zi bytes to fd=%d\ncontent: %s\n", res, fd, data);
+    if(res > 0) {
+        printf("Sent %zi bytes to fd=%d\ncontent: %s\n", res, fd, data);
+    } else {
+        clientFds.erase(fd);
+        close(fd);
+        this->connectionInputHandler.handleUserQuit(fd);
+    }
 }
 
 void Server::sendMessage(int fd, std::string data) {
