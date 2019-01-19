@@ -247,7 +247,7 @@ void ConnectionInputHandler::sendNewGameInfo(RoomData &data, int fd) {
 }
 
 void ConnectionInputHandler::clearDataStorage() {
-    this->dataStorage.clearData();print
+    this->dataStorage.clearData();
 }
 
 void ConnectionInputHandler::sendCurrentUserData(int fd) {
