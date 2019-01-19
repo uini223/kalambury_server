@@ -18,14 +18,14 @@ std::string WebMessageParser::parse(std::string data) {
 
 void WebMessageParser::eraseStart(std::string &data) {
     int start = data.find(START);
-    if(start != std::string::npos) {
+    if(start != (int)std::string::npos) {
         data.erase(data.find(START), START_LENGTH);
     }
 }
 
 void WebMessageParser::eraseStop(std::string &data) {
     int stop = data.find(STOP);
-    if(stop != std::string::npos) {
+    if(stop != (int)std::string::npos) {
         data.erase(data.find(STOP), STOP_LENGTH);
     }
 }
@@ -62,7 +62,7 @@ std::string WebMessageParser::createAnswerMessage(std::string name, std::string 
 }
 
 std::string WebMessageParser::createMessageContent(std::string content) {
-    if (content.find('[') == -1 && content.find('{')) {
+    if ((int)content.find('[') == -1 && content.find('{')) {
         content = "\"" + content + "\"";
     }
 
