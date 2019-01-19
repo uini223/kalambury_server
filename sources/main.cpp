@@ -18,7 +18,7 @@ int main() {
     signal(SIGQUIT, ctrl_c);
 
      std::ifstream config;
-     config.open("../config.txt");
+     config.open("./config.txt");
      std::string data;
      std::string buf;
      while(getline(config, data)) {

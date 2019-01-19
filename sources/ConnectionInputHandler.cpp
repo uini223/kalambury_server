@@ -190,25 +190,25 @@ void ConnectionInputHandler::handleUserQuit(int fd) {
     // sprawdzamy czy jest na liście gości, jeżeli tak to go usuwamy
     // usuwamy go z listy userów
     std::string userName = this->dataStorage.getUserName(fd);
-    for (auto room: *this->dataStorage.getRooms()) {
+    for (auto &room: *this->dataStorage.getRooms()) {
         RoomData &roomData = room.second;
         if (room.second.getOwnerName() == userName) {
             if (!room.second.getGuests().empty()) {
                 int newOwner = room.second.getGuests()[0];
                 std::string name = this->dataStorage.getUserName(newOwner);
-                room.second.setOwner(name);
                 room.second.setOwnerId(newOwner);
+                room.second.setOwner(name);
                 room.second.getGuests().erase(room.second.getGuests().begin());
-                this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE,roomData));
-                this->sendNewGameInfo(room.second, newOwner);
+                this->sendNewGameInfo(room.second, fd);
+                this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE, roomData));
             } else {
                 this->server->sendMessageToAll(this->parser.createRoomDeletedMessage(roomData.getName()));
                 this->dataStorage.removeRoom(room.second.getName());
                 break;
             }
         } else {
-            this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE,roomData));
             room.second.removeGuest(fd);
+            this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE, roomData));
         }
     }
     this->dataStorage.removeUser(fd);
@@ -227,8 +227,8 @@ void ConnectionInputHandler::handleUserQuitRoom(rapidjson::Value &value, int fd)
                 room.second.setOwnerId(newOwner);
                 room.second.setOwner(name);
                 room.second.getGuests().erase(room.second.getGuests().begin());
-                this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE, roomData));
                 this->sendNewGameInfo(room.second, fd);
+                this->server->sendMessageToAll(this->parser.createInfoMessage(GUESTS_UPDATE, roomData));
             } else {
                 this->server->sendMessageToAll(this->parser.createRoomDeletedMessage(roomData.getName()));
                 this->dataStorage.removeRoom(room.second.getName());
@@ -243,11 +243,11 @@ void ConnectionInputHandler::handleUserQuitRoom(rapidjson::Value &value, int fd)
 
 void ConnectionInputHandler::sendNewGameInfo(RoomData &data, int fd) {
     this->server->sendMessageTo(data.getGuests(), this->parser.createInfoMessage(NEW_GAME, data));
-    this->server->sendMessage(data.getOwnerId(), this->parser.createInfoMessage(NEW_OWNER, data));
+    this->server->sendMessageToAll(this->parser.createInfoMessage(NEW_OWNER, data));
 }
 
 void ConnectionInputHandler::clearDataStorage() {
-    this->dataStorage.clearData();
+    this->dataStorage.clearData();print
 }
 
 void ConnectionInputHandler::sendCurrentUserData(int fd) {

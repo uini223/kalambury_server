@@ -30,7 +30,6 @@ std::unordered_map<std::string, RoomData> *DataStorage::getRooms() {
 
 // sprawdza czy pokoj istnieje
 bool DataStorage::doesRoomAlreadyExists(std::string roomName) {
-    printf(this->rooms.find(roomName) != this->rooms.end()? "true\n": "false\n");
     return this->rooms.find(roomName) != this->rooms.end();
 }
 

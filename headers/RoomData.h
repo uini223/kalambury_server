@@ -32,8 +32,6 @@ public:
 
     bool isPassowrdCorrect(std::string);
 
-    void oldOwnerLeft();
-
     void setOwner(const std::string &owner);
 
     void removeGuest(int fd);

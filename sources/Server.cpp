@@ -120,10 +120,11 @@ void Server::sendMessage(int fd, char *data, size_t size) {
     auto res = write(fd, data, size);
     if(res > 0) {
         printf("Sent %zi bytes to fd=%d\ncontent: %s\n", res, fd, data);
-    } else {
-        clientFds.erase(fd);
+    } else if (clientFds.find(fd) != clientFds.end()) {
+          clientFds.erase(fd);
         close(fd);
         this->connectionInputHandler.handleUserQuit(fd);
+        printf("Lost connection with fd=%d \n", fd);
     }
 }
 
